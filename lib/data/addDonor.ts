@@ -29,7 +29,16 @@ export async function addDonor(
       throw new Error("Missing org credentials");
     }
 
-    const sv = new SecretVaultWrapper(orgConfig.orgCredentials);
+      const sv = new SecretVaultWrapper(
+        orgConfig.nodes,
+        {
+          secretKey: orgConfig.orgCredentials.secretKey,
+          orgDid: orgConfig.orgCredentials.orgDid
+        },
+        process.env.DONOR_SCHEMA_ID
+      );
+
+      await sv.init();
     
     // Create donor object according to schema
     const donor: Donor = {

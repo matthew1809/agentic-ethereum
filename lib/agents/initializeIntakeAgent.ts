@@ -3,11 +3,10 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { Tool } from "@langchain/core/tools";
 import { SecretVaultWrapper } from 'nillion-sv-wrappers';
 import { orgConfig } from '../../config/nillionOrgConfig';
-// import initializeShelterAgent from './initializeShelterAgent';
 import { MemorySaver } from "@langchain/langgraph";
 import type { Shelter } from '../../types/shelter';
-// Schema ID for the shelter data in Nillion Secret Vault
-const SHELTER_SCHEMA_ID = 'd20f2c6f-84d2-4542-92d7-e47e63359d97';
+
+const SHELTER_SCHEMA_ID = process.env.SHELTER_SCHEMA_ID;
 
 class CreateShelterTool extends Tool {
   name = "create_shelter";

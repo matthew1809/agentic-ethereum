@@ -11,7 +11,7 @@ import { addDonor } from "@/lib/data/addDonor";
 import { useDynamicContext, useIsLoggedIn } from "@dynamic-labs/sdk-react-core";
 
 export default function DonatePage() {
-  const { primaryWallet, sdkHasLoaded, setShowAuthFlow } = useDynamicContext();
+  const { primaryWallet, setShowAuthFlow } = useDynamicContext();
   const isLoggedIn = useIsLoggedIn();
 
   const [showThankYou, setShowThankYou] = useState(false);
