@@ -3,6 +3,7 @@ import type { WriteResult } from 'nillion-sv-wrappers';
 import { orgConfig } from '@/config/nillionOrgConfig.js';
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import type { Shelter } from '@/types/shelter';
 
 // Define types for our data structures
 interface Animal {
@@ -27,6 +28,11 @@ interface ShelterInput {
 }
 
 const SCHEMA_ID = '03e30e97-abc9-4cee-96b4-ec9d67bbc2a6';
+
+interface OrgCredentials {
+  secretKey: string;
+  orgDid: string;
+}
 
 export async function POST(request: Request) {
   try {
@@ -65,10 +71,17 @@ export async function POST(request: Request) {
       }))
     }];
 
+
+    if(!orgConfig.orgCredentials.secretKey || !orgConfig.orgCredentials.orgDid) {
+      throw new Error("Missing org credentials");
+    }
     // Initialize SecretVaultWrapper
     const collection = new SecretVaultWrapper(
       orgConfig.nodes,
-      orgConfig.orgCredentials,
+      {
+        secretKey: orgConfig.orgCredentials.secretKey,
+        orgDid: orgConfig.orgCredentials.orgDid
+      },
       SCHEMA_ID
     );
     await collection.init();
@@ -90,6 +103,50 @@ export async function POST(request: Request) {
     console.error('Failed to create shelter:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error occurred' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    if (!orgConfig.orgCredentials.secretKey || !orgConfig.orgCredentials.orgDid) {
+      throw new Error('Missing required Nillion credentials');
+    }
+
+    const credentials: OrgCredentials = {
+      secretKey: orgConfig.orgCredentials.secretKey,
+      orgDid: orgConfig.orgCredentials.orgDid
+    };
+
+    const collection = new SecretVaultWrapper(
+      orgConfig.nodes,
+      credentials,
+      SCHEMA_ID
+    );
+    await collection.init();
+
+    // Get all shelters
+    const shelters = await collection.readFromNodes({}) as Shelter[];
+    
+    // Format the response to only include necessary information
+    const formattedShelters = shelters.map(shelter => ({
+      id: shelter._id,
+      name: shelter.shelter_info.name.$share,
+      location: shelter.shelter_info.location.$share,
+      metrics: {
+        currentAnimals: shelter.metrics.current_animals,
+        monthlyIntake: shelter.metrics.monthly_intake,
+        neuteringCount: shelter.metrics.neutering_count,
+        adoptionRate: shelter.metrics.adoption_rate
+      }
+    }));
+
+    return NextResponse.json(formattedShelters);
+  } catch (error) {
+    console.error('Error fetching shelters:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch shelters' },
       { status: 500 }
     );
   }

@@ -12,8 +12,15 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
+        const coordinatorAgent = await agentManager.getCoordinatorAgent();
 
-        const coordinatorAgent = agentManager.getCoordinatorAgent();
+        if (!coordinatorAgent) {
+            return NextResponse.json(
+                { error: 'Coordinator agent not initialized' },
+                { status: 500 }
+            );
+        }
+
         const response = await coordinatorAgent.invoke({
             messages
         });

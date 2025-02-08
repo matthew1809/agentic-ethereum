@@ -143,12 +143,12 @@ interface StreamChunk {
 const e2eTest = async () => {
   try {
     console.log(process.env.SCHEMA_ID)
-    const data = await readData(process.env.SCHEMA_ID)
+    const data = await readData(process.env.SCHEMA_ID as string)
 
     for (const shelter of data) {
       console.log("Found shelter: ", shelter.shelter_info.name.$share)
 
-      const { agent, config } = await initializeAgent(shelter);
+      const { config } = await initializeAgent(shelter);
       console.log("Initialized shelter agent with config:", config);
     }
 

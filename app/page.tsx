@@ -1,12 +1,10 @@
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { Clock, Search, Heart } from 'lucide-react'
-import Link from 'next/link';
 import HowItWorks from '@/components/how-it-works'
 import DonationImpact from '@/components/donation-impact'
 import MeetPerfectPet from '@/components/meet-perfect-pet'
 import WhyTrustUs from '@/components/why-trust-us'
-import Footer from '@/components/footer'
 
 export default function Home() {
   return (

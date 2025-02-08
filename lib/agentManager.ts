@@ -2,8 +2,8 @@ import {
     initializeShelterAgent, 
     initializeCoordinatorAgent, 
     initializeIntakeAgent 
-} from "@/agents/index.ts";
-import type { Shelter } from "@/types/shelter.ts";
+} from "../agents/index.ts";
+import type { Shelter } from "../types/shelter";
 
 class AgentManager {
     private static instance: AgentManager;

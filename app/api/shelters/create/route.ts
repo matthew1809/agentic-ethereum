@@ -76,13 +76,20 @@ export async function POST(request: Request) {
       }))
     }];
 
+
+    if(!orgConfig.orgCredentials.secretKey || !orgConfig.orgCredentials.orgDid) {
+      throw new Error("Missing org credentials");
+    }
     // Initialize SecretVaultWrapper
     const collection = new SecretVaultWrapper(
       orgConfig.nodes,
-      orgConfig.orgCredentials,
+      {
+        secretKey: orgConfig.orgCredentials.secretKey,
+        orgDid: orgConfig.orgCredentials.orgDid
+      },
       SCHEMA_ID
     );
-
+    
     await collection.init();
 
     // Write data to nodes
