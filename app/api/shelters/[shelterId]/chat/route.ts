@@ -1,16 +1,18 @@
-import type { NextApiRequest } from 'next';
 import { agentManager } from '@/lib/agentManager';
 import { HumanMessage } from "@langchain/core/messages";
 
 const encoder = new TextEncoder();
 
 export async function POST(
-  req: NextApiRequest,
+  req: Request,
+  { params }: { params: { shelterId: string } }
 ) {
   try {
-    console.log('req', req);
-    const { message } = req.body;
-    const { shelterId } = req.query;
+    const body = await req.json();
+    const { message } = body;
+    const { shelterId } = params;
+
+    console.log('Request params:', { shelterId, message, body });
 
     if (!message) {
       return new Response(

@@ -93,6 +93,7 @@ export default function SheltersPage() {
     setChatMessage('');
 
     try {
+      console.log('Sending message to:', selectedShelterId);
       const response = await fetch(`/api/shelters/${selectedShelterId}/chat`, {
         method: 'POST',
         headers: {
@@ -103,7 +104,10 @@ export default function SheltersPage() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to send message');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send message');
+      }
       
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No response stream available');
