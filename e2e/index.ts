@@ -1,5 +1,5 @@
 import { HumanMessage } from "@langchain/core/messages";
-import readData from "@/data/readData";
+import readData from "@/lib/data/readData";
 import initializeAgent from "@/lib/agents/initializeShelterAgent";
 import initializeCoordinatorAgent from "@/lib/agents/initializeCoordinatorAgent";
 import { createInterface } from 'node:readline/promises';

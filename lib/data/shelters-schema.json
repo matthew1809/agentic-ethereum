@@ -1,0 +1,160 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Shelter System",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "uuid",
+          "coerce": true
+        },
+        "shelter_info": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "object",
+              "properties": {
+                "$share": {
+                  "type": "string"
+                }
+              },
+              "required": ["$share"]
+            },
+            "location": {
+              "type": "object",
+              "properties": {
+                "$share": {
+                  "type": "string"
+                }
+              },
+              "required": ["$share"]
+            },
+            "operational_costs": {
+              "type": "object",
+              "properties": {
+                "$share": {
+                  "type": "integer"
+                }
+              },
+              "required": ["$share"]
+            }
+          },
+          "required": ["name", "location", "operational_costs"]
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "current_animals": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "monthly_intake": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "neutering_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "adoption_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": ["current_animals", "monthly_intake", "neutering_count", "adoption_rate"]
+        },
+        "animals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "species": {
+                "type": "string",
+                "enum": ["dog", "cat"]
+              },
+              "breed": {
+                "type": "string"
+              },
+              "age": {
+                "type": "number",
+                "minimum": 0
+              },
+              "status": {
+                "type": "string",
+                "enum": ["available", "adopted", "pending"]
+              },
+              "intake_date": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "temperament": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "friendly",
+                    "shy",
+                    "energetic",
+                    "calm",
+                    "good_with_kids",
+                    "good_with_pets"
+                  ]
+                },
+                "minItems": 1
+              },
+              "medical_issues": {
+                "type": "object",
+                "properties": {
+                  "has_issues": {
+                    "type": "boolean"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": ["has_issues"]
+              },
+              "space_requirements": {
+                "type": "object",
+                "properties": {
+                  "min_space": {
+                    "type": "string",
+                    "enum": ["apartment", "house", "garden", "farm"]
+                  },
+                  "needs_garden": {
+                    "type": "boolean"
+                  },
+                  "floor_restrictions": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["min_space", "needs_garden"]
+              },
+              "additional_notes": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "species",
+              "breed",
+              "age",
+              "status",
+              "intake_date",
+              "temperament",
+              "medical_issues",
+              "space_requirements"
+            ]
+          }
+        }
+      },
+      "required": ["_id", "shelter_info", "metrics", "animals"]
+    }
+  }
