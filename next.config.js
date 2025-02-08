@@ -12,6 +12,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
+  serverExternalPackages: ['@coinbase/agentkit'],
+  experimental: {
+    esmExternals: 'loose'
+  },
   webpack: (config) => {
     // Handle ESM modules
     config.experiments = { ...config.experiments, topLevelAwait: true };
@@ -23,6 +27,9 @@ const nextConfig = {
       net: false,
       tls: false
     };
+
+    // Improve module resolution
+    config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', '.json'];
 
     return config;
   }
