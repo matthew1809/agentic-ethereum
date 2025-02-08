@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, FormEvent, ReactNode } from 'react';
+import { useState, useCallback, type FormEvent, type ReactNode } from 'react';
 import Image from 'next/image';
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { Button } from "@/components/ui/button";

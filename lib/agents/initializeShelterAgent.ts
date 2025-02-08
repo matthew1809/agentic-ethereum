@@ -171,6 +171,26 @@ async function initializeShelterAgent(shelter: Shelter): Promise<{
         fs.writeFileSync(WALLET_DATA_FILE, JSON.stringify(exportedWallet));
         console.log('Wallet data saved successfully');
 
+        // Check if this shelter has tweeted before
+        // const existingShelter = agentStore.getShelter(shelter._id);
+        // if (!existingShelter?.has_tweeted) {
+        //     try {
+        //         await agent.invoke({
+        //             messages: [{
+        //                 type: 'human',
+        //                 content: `Tweet to help get more visibility, and ask for donations. Make it engaging and heartwarming, but keep it within Twitter's character limit.`
+        //             }]
+        //         });
+                
+        //         // Mark the shelter as having tweeted
+        //         agentStore.markShelterAsTweeted(shelter._id);
+        //         console.log('Initial tweet sent successfully');
+        //     } catch (error) {
+        //         console.error('Failed to send initial tweet:', error);
+        //         // We don't throw here as this is not critical to agent initialization
+        //     }
+        // }
+
         console.log('Adding shelter to agent store...');
         agentStore.addShelter(shelter._id, {
             _id: shelter._id,

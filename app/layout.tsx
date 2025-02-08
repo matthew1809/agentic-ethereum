@@ -25,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen bg-primary`}>
+        {/* @ts-expect-error - Dynamic Labs SDK */}
         <DynamicContextProvider
         theme="dark"
         settings={{

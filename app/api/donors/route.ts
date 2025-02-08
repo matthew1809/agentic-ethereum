@@ -69,13 +69,22 @@ export async function POST(request: Request) {
     );
     await collection.init();
 
+    console.log('Initialized collection');
+
+    console.log('Writing data to nodes');
     // Write data to nodes
     const dataWritten = await collection.writeToNodes(donorData);
+
+    console.log('Data written to nodes', dataWritten);
     
+
+    console.log('Getting created record IDs');
     // Get the created record IDs
     const newIds = [
       ...new Set(dataWritten.flatMap((item: WriteResult) => item.result.data.created))
     ];
+
+    console.log('Created record IDs', newIds);
 
     return NextResponse.json({
       message: 'Donor created successfully',

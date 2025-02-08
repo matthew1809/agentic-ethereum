@@ -28,8 +28,7 @@ async function runAutonomousMode(agent: any, config: any, interval = 10) {
   while (true) {
     try {
       const thought =
-        "Be creative and do something interesting on the blockchain. " +
-        "Choose an action or set of actions and execute it that highlights your abilities.";
+        "Tweet to help get more visibility, and ask for donations. Make it engaging and heartwarming, but keep it within Twitter's character limit.";
 
       const stream = await agent.stream({ messages: [new HumanMessage(thought)] }, config);
 
@@ -142,15 +141,14 @@ interface StreamChunk {
 
 const e2eTest = async () => {
   try {
-    console.log(process.env.SCHEMA_ID)
-    const data = await readData(process.env.SCHEMA_ID as string)
+    console.log(process.env.SHELTER_SCHEMA_ID)
+    const data = await readData(process.env.SHELTER_SCHEMA_ID as string)
 
-    for (const shelter of data) {
-      console.log("Found shelter: ", shelter.shelter_info.name.$share)
+    const shelter = data[0]
+    console.log("Initializing shelter agent fo  r one shelter: ", shelter.shelter_info.name.$share)
 
-      const { config } = await initializeAgent(shelter);
-      console.log("Initialized shelter agent with config:", config);
-    }
+    const { agent, config } = await initializeAgent(data[0]);
+    console.log("Initialized shelter agent with config:", config);  
 
     console.log("\nInitializing coordinator agent...");
     const coordinatorAgent = await initializeCoordinatorAgent();
@@ -163,51 +161,38 @@ const e2eTest = async () => {
 
     console.log("\nWhat would you like to test?");
     console.log("1. Get shelter statistics");
-    console.log("2. Match with an animal");
+    console.log("2. Chat with the agent");
 
     const choice = await rl.question("\nEnter your choice (1 or 2): ");
     
-    let query: string;
     if (choice === "1") {
-      query = "Please provide statistics about all the shelters and their animals.";
-    } else if (choice === "2") {
-      console.log("\nLet me help you find a perfect pet match!");
-      
-      const preferences: AdopterPreferences = {
-        animalType: (await rl.question('Are you looking for a cat or dog? (cat/dog): ')).toLowerCase() as 'cat' | 'dog',
-        hasGarden: (await rl.question('Do you have a garden? (yes/no): ')).toLowerCase().startsWith('y'),
-        hasKids: (await rl.question('Do you have children? (yes/no): ')).toLowerCase().startsWith('y'),
-        hasOtherPets: (await rl.question('Do you have other pets? (yes/no): ')).toLowerCase().startsWith('y'),
-        spaceType: (await rl.question('What type of home do you live in? (apartment/house/farm): ')).toLowerCase() as 'apartment' | 'house' | 'farm',
-        energyLevel: (await rl.question('Preferred energy level? (low/medium/high): ')).toLowerCase() as 'low' | 'medium' | 'high',
-        preferredAge: (await rl.question('Preferred age? (young/adult/senior/any): ')).toLowerCase() as 'young' | 'adult' | 'senior' | 'any'
-      };
+      const query = "Please provide statistics about all the shelters and their animals.";
+      console.log("\nInvoking coordinator agent...");
+      const stream = await coordinatorAgent.stream({
+        messages: [new HumanMessage(query)]
+      }, {
+        configurable: {
+          thread_id: "coordinator-main",
+          coordinator_id: "global"
+        }
+      });
 
-      query = `Please help me find a pet match with these preferences: ${JSON.stringify(preferences)}`;
+      for await (const chunk of stream) {
+        const typedChunk = chunk as StreamChunk;
+        if (typedChunk.agent) {
+          console.log(typedChunk.agent.messages[0].content);
+        } else if (typedChunk.tools) {
+          console.log(typedChunk.tools.messages[0].content);
+        }
+        console.log("-------------------");
+      }
+    } else if (choice === "2") {
+      console.log("Entering chat mode with the shelter agent...");
+      await runChatMode(agent, config);
     } else {
       console.log("Invalid choice. Exiting...");
       rl.close();
       return;
-    }
-
-    console.log("\nInvoking coordinator agent...");
-    const stream = await coordinatorAgent.stream({
-      messages: [new HumanMessage(query)]
-    }, {
-      configurable: {
-        thread_id: "coordinator-main",
-        coordinator_id: "global"
-      }
-    });
-
-    for await (const chunk of stream) {
-      const typedChunk = chunk as StreamChunk;
-      if (typedChunk.agent) {
-        console.log(typedChunk.agent.messages[0].content);
-      } else if (typedChunk.tools) {
-        console.log(typedChunk.tools.messages[0].content);
-      }
-      console.log("-------------------");
     }
 
     rl.close();
