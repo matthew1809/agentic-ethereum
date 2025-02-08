@@ -27,11 +27,11 @@ export default function RootLayout({
       <body className={`${inter.className} min-h-screen bg-primary`}>
         <DynamicContextProvider
         theme="dark"
-      settings={{
-        // Find your environment id at https://app.dynamic.xyz/dashboard/developer
-        environmentId: "afa4f40f-a9a3-4bea-ab17-4a7faf287247",
-        walletConnectors: [EthereumWalletConnectors, ZeroDevSmartWalletConnectors],
-      }}
+        settings={{
+          // Find your environment id at https://app.dynamic.xyz/dashboard/developer
+          environmentId: "afa4f40f-a9a3-4bea-ab17-4a7faf287247",
+          walletConnectors: [EthereumWalletConnectors, ZeroDevSmartWalletConnectors],
+        }}
     >
         <Navigation />
         {/* Page Content */}

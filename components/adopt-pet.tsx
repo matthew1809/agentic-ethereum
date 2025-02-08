@@ -96,7 +96,6 @@ export default function AdoptPet() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [livingSpace, setLivingSpace] = useState<'apartment' | 'house' | null>(null);
 
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
