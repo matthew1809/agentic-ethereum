@@ -8,11 +8,12 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
+  serverExternalPackages: ['@coinbase/agentkit', '@langchain/anthropic', '@langchain/core', 'nillion-sv-wrappers'],
   experimental: {
-    serverComponentsExternalPackages: ['@coinbase/agentkit', '@langchain/anthropic', '@langchain/core', 'nillion-sv-wrappers'],
     esmExternals: true
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
+    
     // Handle ESM modules
     config.experiments = { ...config.experiments, topLevelAwait: true };
     
@@ -30,20 +31,11 @@ const nextConfig = {
     // Ensure proper module resolution for @ alias
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': config.resolve.alias['@'] || '.'
+      '@': '.'
     };
 
-    // Add module directories for resolution
-    config.resolve.modules = [
-      ...config.resolve.modules || [],
-      'node_modules',
-      '.'
-    ];
-
     return config;
-  },
-  // Ensure source maps are generated
-  productionBrowserSourceMaps: true
+  }
 };
 
 export default nextConfig;
