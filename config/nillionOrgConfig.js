@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-console.log(process.env);
-
 export const orgConfig = {
     orgCredentials: {
       secretKey: process.env.NILLION_ORG_SECRET_KEY,

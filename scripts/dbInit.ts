@@ -2,6 +2,7 @@ import { SecretVaultWrapper } from 'nillion-sv-wrappers';
 import { orgConfig } from '../config/nillionOrgConfig.js';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
 // Schema IDs - will be generated during initialization
 let SHELTER_SCHEMA_ID = '';
@@ -14,120 +15,10 @@ interface SchemaType {
   items: Record<string, unknown>;
 }
 
-interface OrgCredentials {
-  secretKey: string;
-  orgDid: string;
+async function loadSchema(filePath: string): Promise<SchemaType> {
+  const content = await fs.readFile(filePath, 'utf-8');
+  return JSON.parse(content);
 }
-
-const shelterSchema = {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Animal Shelter System",
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "_id": {
-        "type": "string",
-        "format": "uuid",
-        "coerce": true
-      },
-      "shelter_info": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "object",
-            "properties": {
-              "$share": { "type": "string" }
-            },
-            "required": ["$share"]
-          },
-          "location": {
-            "type": "object",
-            "properties": {
-              "$share": { "type": "string" }
-            },
-            "required": ["$share"]
-          },
-          "operational_costs": {
-            "type": "object",
-            "properties": {
-              "$share": { "type": "number" }
-            },
-            "required": ["$share"]
-          }
-        },
-        "required": ["name", "location", "operational_costs"]
-      },
-      "metrics": {
-        "type": "object",
-        "properties": {
-          "current_animals": { "type": "number" },
-          "monthly_intake": { "type": "number" },
-          "neutering_count": { "type": "number" },
-          "adoption_rate": { "type": "number" }
-        },
-        "required": ["current_animals", "monthly_intake", "neutering_count", "adoption_rate"]
-      },
-      "animals": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": { "type": "string" },
-            "name": { "type": "string" },
-            "species": { "type": "string" },
-            "age": { "type": "number" },
-            "health_status": { "type": "string" }
-          }
-        }
-      }
-    },
-    "required": ["_id", "shelter_info", "metrics", "animals"]
-  }
-};
-
-const donorSchema = {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Donor System",
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "_id": {
-        "type": "string",
-        "format": "uuid",
-        "coerce": true
-      },
-      "donor_info": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "object",
-            "properties": {
-              "$share": { "type": "string" }
-            },
-            "required": ["$share"]
-          },
-          "amount": {
-            "type": "object",
-            "properties": {
-              "$share": { "type": "number" }
-            },
-            "required": ["$share"]
-          }
-        },
-        "required": ["name", "amount"]
-      },
-      "recurring": { "type": "boolean" },
-      "duration_months": {
-        "type": "integer",
-        "minimum": 0,
-        "description": "Number of months for recurring donations. 0 means one-time donation."
-      }
-    },
-    "required": ["_id", "donor_info", "recurring", "duration_months"]
-  }
-};
 
 const sampleShelters = [
   {
@@ -210,12 +101,14 @@ async function writeData(
       throw new Error('Missing required credentials');
     }
 
+    const credentials = {
+      secretKey: orgConfig.orgCredentials.secretKey,
+      orgDid: orgConfig.orgCredentials.orgDid
+    };
+
     const collection = new SecretVaultWrapper(
       orgConfig.nodes,
-      {
-        secretKey: orgConfig.orgCredentials.secretKey!,
-        orgDid: orgConfig.orgCredentials.orgDid!
-      },
+      credentials,
       schemaId
     );
     await collection.init();
@@ -259,10 +152,17 @@ async function main() {
   try {
     console.log('🚀 Initializing database...\n');
 
+    // Load schemas from files
+    const shelterSchema = await loadSchema(path.join(process.cwd(), 'data', 'shelters-schema.json'));
+    const donorSchema = await loadSchema(path.join(process.cwd(), 'data', 'donors-schema.json'));
+
     // Initialize base wrapper for schema creation
     const wrapper = new SecretVaultWrapper(
       orgConfig.nodes,
-      orgConfig.orgCredentials
+      {
+        secretKey: orgConfig.orgCredentials.secretKey || '',
+        orgDid: orgConfig.orgCredentials.orgDid || ''
+      }
     );
     await wrapper.init();
 

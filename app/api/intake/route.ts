@@ -1,10 +1,10 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import type { Message as VercelChatMessage } from "ai";
-import { initializeIntakeAgent } from "@/agents/initializeIntakeAgent";
 import { SecretVaultWrapper } from 'nillion-sv-wrappers';
 import { orgConfig } from '@/config/nillionOrgConfig.js';
 import type { Shelter } from '@/types/shelter';
+import { agentManager } from '@/lib/agentManager';
 import {
   AIMessage,
   ChatMessage,
@@ -72,10 +72,13 @@ export async function POST(req: NextRequest) {
       )
       .map(convertVercelMessageToLangChainMessage);
 
-    // Initialize the agent
-    const { agent } = await initializeIntakeAgent();
+    // Get the intake agent from the manager
+    const intakeAgent = await agentManager.getIntakeAgent();
+    if (!intakeAgent) {
+      throw new Error("Failed to initialize intake agent");
+    }
 
-    const stream = await agent.stream({
+    const stream = await intakeAgent.agent.stream({
       messages
     }, {
       configurable: {

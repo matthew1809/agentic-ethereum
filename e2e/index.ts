@@ -1,7 +1,7 @@
 import { HumanMessage } from "@langchain/core/messages";
 import readData from "@/data/readData";
 import initializeAgent from "@/agents/initializeShelterAgent";
-import initializeCoordinatorAgent from "@/agents/initializeAggregationAgent";
+import initializeCoordinatorAgent from "@/agents/initializeCoordinatorAgent";
 import { createInterface } from 'node:readline/promises';
 
 import * as dotenv from "dotenv";
