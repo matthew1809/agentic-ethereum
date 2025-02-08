@@ -88,17 +88,16 @@ async function main() {
     );
     await wrapper.init();
 
-    console.log('Initialized wrapper');
 
     // Create schemas
-    SHELTER_SCHEMA_ID = await initializeSchema(wrapper, shelterSchema, 'Shelter');
-    DONOR_SCHEMA_ID = await initializeSchema(wrapper, donorSchema, 'Donor');
+    // SHELTER_SCHEMA_ID = await initializeSchema(wrapper, shelterSchema, 'Shelter');
+    // DONOR_SCHEMA_ID = await initializeSchema(wrapper, donorSchema, 'Donor');
 
-    console.log('Initialized schemas');
+    // console.log('Initialized schemas', SHELTER_SCHEMA_ID, DONOR_SCHEMA_ID);
 
-    // Write sample data
-    await writeData(sampleShelterData, SHELTER_SCHEMA_ID, 'shelter');
-    await writeData(sampleDonorData, DONOR_SCHEMA_ID, 'donor');
+    // // Write sample data
+    await writeData(sampleShelterData, '8e990691-5ddc-40d6-9054-3b71534adbf3', 'shelter');
+    // await writeData(sampleDonorData, '361d33fc-06c7-4f14-8dde-d931e218955e', 'donor');
 
     console.log('\n✨ Database initialization complete!');
   } catch (error) {

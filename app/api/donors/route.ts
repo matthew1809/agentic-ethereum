@@ -3,16 +3,17 @@ import type { WriteResult } from 'nillion-sv-wrappers';
 import { orgConfig } from '@/config/nillionOrgConfig.js';
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import { parseEther } from 'ethers';
 
 // Define types for our data structures
 interface DonorInput {
   name: string;
-  amount: number;
+  amount: number;  // Amount in ETH
   recurring: boolean;
   duration_months: number;
 }
 
-const SCHEMA_ID = '03e30e97-abc9-4cee-96b4-ec9d67bbc2a6'; // You'll need to update this with the actual schema ID
+const SCHEMA_ID = process.env.DONOR_SCHEMA_ID; // You'll need to update this with the actual schema ID
 
 export async function POST(request: Request) {
   try {
@@ -44,12 +45,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Convert ETH amount to Wei and store as string
+    const amountInWei = parseEther(body.amount.toString()).toString();
+
     // Format the data according to the schema
     const donorData = [{
       _id: randomUUID(),
       donor_info: {
-        name: { $share: body.name },
-        amount: { $share: body.amount }
+        name: { $allot: body.name },
+        amount: { $allot: amountInWei }
       },
       recurring: body.recurring,
       duration_months: body.duration_months

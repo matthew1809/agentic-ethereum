@@ -87,21 +87,21 @@ export default function DonatePage() {
         throw new Error('Please enter a valid donation amount');
       }
 
-      // const name = "Anonymous Donor"; // Placeholder
+      const name = "Anonymous Donor"; // Placeholder
 
-      // const response = await fetch('/api/donors', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     name,
-      //     amount,
-      //     recurring: isMonthly,
-      //     duration_months: isMonthly ? 12 : 0,
-      //   }),
-      // });
+      const response = await fetch('/api/donors', {
+        method: 'POST',
+        body: JSON.stringify({
+          name,
+          amount,
+          recurring: isMonthly,
+          duration_months: isMonthly ? 12 : 0,
+        }),
+      });
 
-      // if (!response.ok) {
-      //   throw new Error('Failed to create donor');
-      // }
+      if (!response.ok) {
+        throw new Error('Failed to create donor');
+      }
 
       if(!primaryWallet) {
         throw new Error('No primary wallet found');
