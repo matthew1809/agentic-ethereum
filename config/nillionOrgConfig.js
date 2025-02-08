@@ -1,10 +1,12 @@
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
+
+console.log(process.env);
 
 export const orgConfig = {
     orgCredentials: {
-      secretKey: '687b9f335cf6ed42046e1d4ac8c0b8c6242a88c8f8fab2e4c92ffd304c99fd9b',
-  orgDid: 'did:nil:testnet:nillion1lprunp40cdtrazh5g67zlevwhnf644d9xvy2kx'
+      secretKey: process.env.NILLION_ORG_SECRET_KEY,
+      orgDid: process.env.NILLION_ORG_DID
     },
     nodes: [
       {

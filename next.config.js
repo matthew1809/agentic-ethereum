@@ -12,6 +12,23 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
+  webpack: (config) => {
+    // Handle ESM modules
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+    
+    // Add fallbacks for node modules
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false
+    };
+
+    return config;
+  },
+  experimental: {
+    serverExternalPackages: ['@coinbase/agentkit']
+  }
 };
 
-export default nextConfig; 
+export default nextConfig;

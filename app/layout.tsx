@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} min-h-screen bg-primary`}>
         {/* Navigation */}
-        <nav className="flex items-center justify-between p-4 lg:px-8">
+        <nav className="flex items-center justify-between p-4 lg:px-8 fixed w-full top-0 z-50 bg-transparent">
           <div className="flex gap-8">
             <Link href="/" className="text-white border-b-2 border-amber-500">Home</Link>
             <Link href="/adopt" className="text-gray-300 hover:text-white">Adopt</Link>
@@ -33,14 +33,16 @@ export default function RootLayout({
             <Button variant="ghost" className="text-gray-300 hover:text-white">
               Log in
             </Button>
-            <Button className="bg-amber-500 hover:bg-amber-600 text-black">
-              Sign up
-            </Button>
+            <Link href="/join">
+              <Button className="bg-amber-500 hover:bg-amber-600 text-black">
+                Join in
+              </Button>
+            </Link>
           </div>
         </nav>
 
         {/* Page Content */}
-        <main>
+        <main className="pt-16">
           {children}
         </main>
 

@@ -1,4 +1,3 @@
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import initializeShelterAgent from "../agents/initializeShelterAgent";
 import initializeCoordinatorAgent from "../agents/initializeAggregationAgent";
 import type { Shelter } from "../types/shelter";
@@ -19,6 +18,11 @@ class AgentManager {
 
     public async initialize() {
         if (this.initialized) return;
+        await this.initializeCoordinatorAgent();
+    }
+
+    public async initializeCoordinatorAgent() {
+        if (this.initialized) return;
         
         console.log('Initializing coordinator agent...');
         this.coordinatorAgent = await initializeCoordinatorAgent();
@@ -32,9 +36,9 @@ class AgentManager {
         return initializeShelterAgent(shelter);
     }
 
-    public getCoordinatorAgent() {
+    public async getCoordinatorAgent() {
         if (!this.coordinatorAgent) {
-            throw new Error('Coordinator agent not initialized');
+            await this.initialize();
         }
         return this.coordinatorAgent;
     }
