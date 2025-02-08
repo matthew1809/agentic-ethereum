@@ -12,7 +12,7 @@
     "test:watch": "jest --watch"
   },
   "engines" : { 
-    "node" : ">=23.0.0"
+    "node" : ">=22.0.0"
   },
   "dependencies": {
     "@coinbase/agentkit": "^0.1.1",
