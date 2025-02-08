@@ -6,16 +6,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-interface AdopterPreferences {
-  animalType: 'cat' | 'dog';
-  hasGarden: boolean;
-  hasKids: boolean;
-  hasOtherPets: boolean;
-  preferredAge?: 'young' | 'adult' | 'senior' | 'any';
-  spaceType: 'apartment' | 'house' | 'farm';
-  energyLevel?: 'low' | 'medium' | 'high';
-}
-
 // Keep track of active agents in memory
 const activeAgents = new Map();
 
@@ -83,11 +73,28 @@ async function initializeCoordinatorAgent() {
 
   class MatchPetsTool extends Tool {
     name = "match_pets";
-    description = "Find suitable pets based on adopter preferences";
+    description = "Find suitable pets based on adopter preferences. Input should be a natural language description of preferences (e.g., 'Looking for a dog, I have a yard, no kids, no other pets')";
 
     async _call(input: string) {
-      const preferences = JSON.parse(input) as AdopterPreferences;
-      console.log('Finding matches based on preferences...');
+      console.log('Finding matches based on preferences:', input);
+
+      // Parse natural language preferences
+      const preferences = {
+        animalType: input.toLowerCase().includes('dog') ? 'dog' : 
+                    input.toLowerCase().includes('cat') ? 'cat' : undefined,
+        hasGarden: input.toLowerCase().includes('garden') || 
+                  input.toLowerCase().includes('yard') || 
+                  input.toLowerCase().includes('backyard'),
+        hasKids: input.toLowerCase().includes('kids') || 
+                input.toLowerCase().includes('children'),
+        hasOtherPets: input.toLowerCase().includes('other pets'),
+        spaceType: input.toLowerCase().includes('apartment') ? 'apartment' : 
+                  input.toLowerCase().includes('house') ? 'house' : undefined,
+        energyLevel: input.toLowerCase().includes('active') || input.toLowerCase().includes('energetic') ? 'high' :
+                    input.toLowerCase().includes('calm') || input.toLowerCase().includes('quiet') ? 'low' : undefined,
+        preferredAge: input.toLowerCase().includes('puppy') || input.toLowerCase().includes('kitten') ? 'young' :
+                     input.toLowerCase().includes('senior') || input.toLowerCase().includes('old') ? 'senior' : undefined
+      };
 
       const allMatches: Array<{
         animal: string;
@@ -97,6 +104,9 @@ async function initializeCoordinatorAgent() {
         explanation: string;
       }> = [];
 
+      console.log('We have the following active agents:', activeAgents.entries());
+      console.log('Parsed preferences:', preferences);
+
       // Query each shelter for matches
       for (const [shelterId, agent] of activeAgents.entries()) {
         try {
@@ -104,27 +114,19 @@ async function initializeCoordinatorAgent() {
           const response = await agent.invoke({
             messages: [{
               type: 'human',
-              content: `Given these adopter preferences: ${JSON.stringify(preferences)}, return ONLY a JSON array of matching animals.
+              content: `Please find animals that match these preferences:
+              - Species: ${preferences.animalType || 'any'}
+              - Has garden/yard: ${preferences.hasGarden ? 'yes' : 'no'}
+              - Has children: ${preferences.hasKids ? 'yes' : 'no'}
+              - Has other pets: ${preferences.hasOtherPets ? 'yes' : 'no'}
+              - Living space: ${preferences.spaceType || 'any'}
+              - Energy level preference: ${preferences.energyLevel || 'any'}
+              - Age preference: ${preferences.preferredAge || 'any'}
 
-              Rules:
-              1. Return ONLY the JSON array, no other text
-              2. Only include animals that match the preferred species (${preferences.animalType})
-              3. Score should consider:
-                 - Space requirements vs ${preferences.spaceType}
-                 - Garden needs vs ${preferences.hasGarden ? 'has garden' : 'no garden'}
-                 - Energy level vs ${preferences.energyLevel || 'any'}
-                 - Age preference vs ${preferences.preferredAge || 'any'}
-                 - Compatibility with children: ${preferences.hasKids ? 'has kids' : 'no kids'}
-                 - Compatibility with other pets: ${preferences.hasOtherPets ? 'has other pets' : 'no other pets'}
-
-              Required response format:
-              [
-                {
-                  "animal": "species - breed - age",
-                  "score": number between 0-100,
-                  "explanation": "brief reason for match score"
-                }
-              ]`
+              Return your response as a list of matches in this format:
+              1. [Animal Description] - [Match Score]/100 - [Reason for match]
+              2. [Animal Description] - [Match Score]/100 - [Reason for match]
+              ...`
             }]
           }, { configurable: { checkpointing: false } });
 
@@ -132,38 +134,20 @@ async function initializeCoordinatorAgent() {
             const content = response.messages[response.messages.length - 1].content;
             console.log(`\nResponse from ${shelterId}:\n${content}\n`);
             
-            try {
-              // Try to find and parse JSON array in the response
-              const jsonMatch = content.match(/\[[\s\S]*\]/);
-              if (jsonMatch) {
-                const matches = JSON.parse(jsonMatch[0]);
-                if (Array.isArray(matches)) {
-                  for (const match of matches) {
-                    if (match.animal && match.score && match.explanation) {
-                      allMatches.push({
-                        ...match,
-                        shelterId,
-                        shelterName: activeAgents.get(shelterId).name || shelterId
-                      });
-                    }
-                  }
-                }
-              } else {
-                // Fallback: Try to extract matches from the text response
-                const matchRegex = /["']animal["']: ["']([^"']+)["'],\s*["']score["']: (\d+),\s*["']explanation["']: ["']([^"']+)["']/g;
-                let match;
-                while ((match = matchRegex.exec(content)) !== null) {
-                  allMatches.push({
-                    animal: match[1],
-                    score: Number.parseInt(match[2], 10),
-                    explanation: match[3],
-                    shelterId,
-                    shelterName: activeAgents.get(shelterId).name || shelterId
-                  });
-                }
-              }
-            } catch (error) {
-              console.error(`Error parsing response from ${shelterId}:`, error);
+            // Parse the response using regex
+            const matchRegex = /(\d+)\.\s+([^-]+)-\s*(\d+)\/100\s*-\s*([^\n]+)/g;
+            let matchResult: RegExpMatchArray | null;
+            while (true) {
+              matchResult = matchRegex.exec(content);
+              if (matchResult === null) break;
+              
+              allMatches.push({
+                animal: matchResult[2].trim(),
+                score: Number.parseInt(matchResult[3], 10),
+                explanation: matchResult[4].trim(),
+                shelterId,
+                shelterName: activeAgents.get(shelterId).name || shelterId
+              });
             }
           }
         } catch (err) {
@@ -181,16 +165,23 @@ async function initializeCoordinatorAgent() {
         return "I'm sorry, but I couldn't find any matches that fit your preferences. Consider adjusting your criteria to see more potential matches.";
       }
 
-      return `Here are your top ${topMatches.length} matches:
+      // Format matches with line breaks between sections
+      const matchesText = topMatches.map((match, index) => {
+        const sections = [
+          `🐾 Match #${index + 1}: ${match.animal}`,
+          `⭐ Match Score: ${match.score}/100`,
+          `💭 Why this could be a good fit:\n   ${match.explanation}`,
+          `📍 Available at: ${match.shelterName}`
+        ];
+        return sections.join('\n');
+      }).join('\n\n');
 
-${topMatches.map((match, index) => `
-${index + 1}. ${match.animal}
-   Match Score: ${match.score}/100
-   Why this could be a good fit: ${match.explanation}
-   Available at: ${match.shelterName}
-`).join('\n')}
-
-Would you like to learn more about any of these matches or schedule a visit to meet them?`;
+      // Break the response into multiple messages
+      return [
+        "I've found some great potential matches for you!",
+        matchesText,
+        "Would you like to learn more about any of these pets or schedule a visit to meet them? Just let me know which one interests you the most!"
+      ].join('\n\n');
     }
   }
 
@@ -210,13 +201,19 @@ Would you like to learn more about any of these matches or schedule a visit to m
     - Consider all relevant factors like space, household composition, and animal requirements
     - Present matches in order of suitability
     
-    When presenting matches to users, format them in a clear, easy-to-read way, highlighting:
-    - Basic information (species, breed, age)
-    - Why this animal might be a good match (based on the match_reason)
-    - Any special considerations (medical issues, space requirements)
-    - The shelter where they can find the animal
-
-    Always be empathetic and focus on finding the best match for both the adopter and the animal.`
+    When presenting matches to users:
+    - Break up long responses into smaller, more digestible chunks
+    - Use emojis and formatting to make the information more readable
+    - Present one piece of information at a time
+    - Ask follow-up questions to help guide the conversation
+    
+    Always be empathetic and focus on finding the best match for both the adopter and the animal.
+    
+    Remember to:
+    1. Start with a friendly greeting
+    2. Break up long responses into multiple messages
+    3. Use clear section breaks between different pieces of information
+    4. End with a question or call to action to keep the conversation going`
   });
 
   return agent;

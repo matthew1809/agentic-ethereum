@@ -156,7 +156,68 @@ export default function DonatePage() {
 
   return (
     <div className="min-h-screen bg-[#1B1B1B] text-white">
-      <div className="px-4 lg:px-8 py-24">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 className="text-5xl lg:text-6xl font-bold mb-6">
+              Give smarter, save more lives.
+            </h1>
+            <p className="text-xl text-zinc-300 mb-8">
+              Every dollar goes directly into our smart funding system, ensuring shelters get exactly what they need—nothing more, nothing less.
+            </p>
+            <div className="space-y-6">
+              <h2 className="text-2xl font-semibold">Where donations are allocated</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">🐾</span>
+                  <span>Neutering programs</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">📢</span>
+                  <span>Adoption promotion</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">🏥</span>
+                  <span>Medical care</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">🧠</span>
+                  <span>Behavioral & rehabilitation programs</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">🥩</span>
+                  <span>Food & nutrition</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">🚗</span>
+                  <span>Transport & relocation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">🏠</span>
+                  <span>Shelter upkeep</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400">👥</span>
+                  <span>Staff & volunteer training</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <Image
+              src="/cat-donate.png"
+              alt="Cat looking at camera"
+              width={800}
+              height={800}
+              className="rounded-lg object-cover"
+              priority
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 lg:px-8 pb-24">
         <div className="w-full">
           {/* Top section with image and donation flow */}
           <div className="grid lg:grid-cols-2 gap-12 mb-12">
@@ -173,26 +234,26 @@ export default function DonatePage() {
             </div>
 
             {/* Right side - Donation Flow */}
-            <div>
+            <div className='pt-12'>
               <h2 className="text-3xl font-bold mb-12">How your donation flows</h2>
               <div className="relative">
                 <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-green-700" />
-                <div className="space-y-12">
+                <div className="space-y-16">
                   {donationFlow.map((step) => (
                     <div key={step.step} className="relative pl-12">
-                      <div className="absolute left-0 -translate-x-1/2 w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
+                      <div className="absolute left-0 -translate-x-1/2 w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-sm">
                         {step.step}
                       </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{step.icon}</span>
-                          <h3 className="text-xl font-semibold">{step.title}</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{step.icon}</span>
+                          <h3 className="text-2xl font-semibold">{step.title}</h3>
                         </div>
-                        <div className="space-y-1 text-gray-300">
+                        <div className="space-y-3 text-gray-300">
                           {step.details.map((detail, i) => (
-                            <div key={`${step.step}-${i}`} className="flex items-start gap-2">
-                              <span className="text-amber-500">→</span>
-                              <p>{detail.text}</p>
+                            <div key={`${step.step}-${i}`} className="flex items-start gap-3">
+                              <span className="text-amber-500 mt-1">→</span>
+                              <p className="text-lg">{detail.text}</p>
                             </div>
                           ))}
                         </div>

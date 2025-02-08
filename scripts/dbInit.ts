@@ -3,11 +3,10 @@ import { orgConfig } from '../config/nillionOrgConfig.js';
 import { sampleShelterData } from '../lib/data/sampleShelterData.js';
 import { sampleDonorData } from '../lib/data/sampleDonorData.js';
 import fs from 'node:fs/promises';
+import { v4 as uuidv4 } from 'uuid';
 import path from 'node:path';
-
-// Schema IDs - will be generated during initialization
-let SHELTER_SCHEMA_ID = '';
-let DONOR_SCHEMA_ID = '';
+const SHELTER_SCHEMA_ID = process.env.SHELTER_SCHEMA_ID;
+const DONOR_SCHEMA_ID = process.env.DONOR_SCHEMA_ID;
 
 interface SchemaType {
   $schema: string;
@@ -48,6 +47,7 @@ async function writeData(
       throw new Error('Missing required credentials');
     }
 
+
     const credentials = {
       secretKey: orgConfig.orgCredentials.secretKey,
       orgDid: orgConfig.orgCredentials.orgDid
@@ -59,46 +59,37 @@ async function writeData(
       schemaId
     );
     await collection.init();
+    console.log('Writing data:', JSON.stringify(data, null, 2));
+
     await collection.writeToNodes(data);
     console.log(`✅ Sample ${name} data written successfully`);
   } catch (error) {
-    console.log('Error writing data');
-    // console.error(`❌ Failed to write ${name} data:`, error);
-    // throw error;
+    console.error(`❌ Failed to write ${name} data:`, error);
+    throw error;
   }
 }
 
 async function main() {
   try {
-    console.log('🚀 Initializing database...\n');
 
-    // Load schemas from files
-    const shelterSchema = await loadSchema(path.join(process.cwd(), 'lib/data/schemas', 'shelters-schema.json'));
-    const donorSchema = await loadSchema(path.join(process.cwd(), 'lib/data/schemas', 'donors-schema.json'));
+    // const wrapper = new SecretVaultWrapper(
+    //   orgConfig.nodes,
+    //   {
+    //     secretKey: orgConfig.orgCredentials.secretKey || '',
+    //     orgDid: orgConfig.orgCredentials.orgDid || ''
+    //   },
+    // );
 
-    console.log('Loaded schemas');
+    // await wrapper.init();
 
-    // Initialize base wrapper for schema creation
-    const wrapper = new SecretVaultWrapper(
-      orgConfig.nodes,
-      {
-        secretKey: orgConfig.orgCredentials.secretKey || '',
-        orgDid: orgConfig.orgCredentials.orgDid || ''
-      }
-    );
-    await wrapper.init();
+    // const schema = await loadSchema(path.join(process.cwd(), './lib/data/schemas', 'donors-schema.json'));
 
-
-    // Create schemas
-    // SHELTER_SCHEMA_ID = await initializeSchema(wrapper, shelterSchema, 'Shelter');
-    // DONOR_SCHEMA_ID = await initializeSchema(wrapper, donorSchema, 'Donor');
-
-    // console.log('Initialized schemas', SHELTER_SCHEMA_ID, DONOR_SCHEMA_ID);
-
+    // const schemaId = await initializeSchema(wrapper, schema, 'shelter');
+    // console.log('schemaId', schemaId);
     // // Write sample data
-    await writeData(sampleShelterData, '8e990691-5ddc-40d6-9054-3b71534adbf3', 'shelter');
-    // await writeData(sampleDonorData, '361d33fc-06c7-4f14-8dde-d931e218955e', 'donor');
-
+    // await writeData(sampleShelterData, SHELTER_SCHEMA_ID, 'shelter');
+    await writeData(sampleDonorData, DONOR_SCHEMA_ID, 'donor');
+   
     console.log('\n✨ Database initialization complete!');
   } catch (error) {
     console.error('\n❌ Initialization failed:', error);

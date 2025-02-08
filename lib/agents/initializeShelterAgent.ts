@@ -1,14 +1,24 @@
+/* tslint:disable:no-any */
+
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { MemorySaver } from "@langchain/langgraph";
 import * as dotenv from "dotenv";
 import * as fs from "node:fs";
-import type { Shelter } from '../../types/shelter';
 import { agentStore } from "../store/agentStore";
 dotenv.config();
 
 // Configure a file to persist the agent's CDP MPC Wallet Data
 const WALLET_DATA_FILE = "wallet_data.txt";
+
+// Helper to get the actual value regardless of $share or $allot
+function getValue<T>(field: { $share: T } | { $allot: T } | T): T {
+    if (field && typeof field === 'object') {
+        if ('$share' in field) return field.$share;
+        if ('$allot' in field) return field.$allot;
+    }
+    return field as T;
+}
 
 // Add environment validation
 function validateEnvironment() {
@@ -33,13 +43,14 @@ function validateEnvironment() {
  * @param shelter The shelter data from the database
  * @returns Agent executor and config
  */
-async function initializeShelterAgent(shelter: Shelter): Promise<{
+async function initializeShelterAgent(shelter: any): Promise<{
     agent: ReturnType<typeof createReactAgent>;
     config: {
         configurable: {
             thread_id: string;
             shelter_id: string;
             memory: MemorySaver;
+            shelter_name: string;
         };
     };
 }> {
@@ -112,11 +123,15 @@ async function initializeShelterAgent(shelter: Shelter): Promise<{
         console.log('Creating memory saver...');
         const memory = new MemorySaver();
         
+        const shelterName = getValue(shelter.shelter_info.name);
+        const shelterLocation = getValue(shelter.shelter_info.location);
+
         const agentConfig = { 
             configurable: { 
-                thread_id: `Shelter Agent - ${shelter.shelter_info.name.$share}`,
+                thread_id: `Shelter Agent - ${shelterName}`,
                 shelter_id: shelter._id,
-                memory
+                memory,
+                shelter_name: shelterName
             } 
         };
 
@@ -125,7 +140,7 @@ async function initializeShelterAgent(shelter: Shelter): Promise<{
             llm,
             tools,
             messageModifier: `
-                You are a helpful AI agent for ${shelter.shelter_info.name.$share}, an animal shelter located in ${shelter.shelter_info.location.$share}.
+                You are a helpful AI agent for ${shelterName}, an animal shelter located in ${shelterLocation}.
                 Your primary responsibilities are:
                 1. Promoting animal adoptions from our shelter
                 2. Accepting donations to your wallet from any user
@@ -136,10 +151,10 @@ async function initializeShelterAgent(shelter: Shelter): Promise<{
                 - Our monthly intake is ${shelter.metrics.monthly_intake} animals
                 - We perform about ${shelter.metrics.neutering_count} neutering procedures monthly
                 - Our adoption rate is ${(shelter.metrics.adoption_rate * 100).toFixed(1)}%
-                - Our monthly operational costs are ${shelter.shelter_info.operational_costs.$share}
+                - Our monthly operational costs are ${shelter.shelter_info.operational_costs}
 
                 The animals in our care are:
-                ${shelter.animals.map(animal => `
+                ${shelter.animals.map((animal: any) => `
                     ID: ${animal.id}
                     Species: ${animal.species}
                     Breed: ${animal.breed}
@@ -195,10 +210,11 @@ async function initializeShelterAgent(shelter: Shelter): Promise<{
         agentStore.addShelter(shelter._id, {
             _id: shelter._id,
             shelter_info: {
-                name: { $share: shelter.shelter_info.name.$share },
-                location: { $share: shelter.shelter_info.location.$share }
+                name: shelterName,
+                location: shelterLocation
             },
-            thread_id: agentConfig.configurable.thread_id
+            agent,
+            config: agentConfig
         });
         console.log('Shelter added to agent store successfully');
 

@@ -23,12 +23,12 @@ function ChatMessageBubble({ message, isAgent }: { message: Message; isAgent?: b
     >
       {isAgent && (
         <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center">
-          <span className="text-zinc-900">🐾</span>
+          <span role="img" aria-label="paw emoji" className="text-zinc-900">🐾</span>
         </div>
       )}
       <div
-        className={`rounded-lg p-3 max-w-[80%] ${
-          isAgent ? 'bg-zinc-700' : 'bg-amber-500 text-zinc-900'
+        className={`rounded-2xl p-4 max-w-[80%] ${
+          isAgent ? 'bg-zinc-800 text-white' : 'bg-amber-500 text-zinc-900'
         }`}
       >
         {message.content}
@@ -83,16 +83,20 @@ function ChatInput(props: {
       }}
       className={cn("flex w-full flex-col", props.className)}
     >
-      <div className="border border-input bg-secondary rounded-lg flex flex-col gap-2 max-w-[768px] w-full mx-auto">
+      <div className="border border-zinc-700 bg-zinc-800 rounded-xl flex flex-col gap-2 max-w-[768px] w-full mx-auto">
         <input
           value={props.value}
-          placeholder="Tell us about your shelter..."
+          placeholder="Message our AI onboarding agent"
           onChange={props.onChange}
-          className="border-none outline-none bg-transparent p-4 text-black"
+          className="border-none outline-none bg-transparent p-4 text-white placeholder:text-zinc-500"
         />
 
         <div className="flex justify-end mr-2 mb-2">
-          <Button type="submit" className="self-end" disabled={props.loading}>
+          <Button 
+            type="submit" 
+            className="self-end bg-amber-500 hover:bg-amber-600 text-zinc-900" 
+            disabled={props.loading}
+          >
             {props.loading ? (
               <output className="flex justify-center">
                 <LoaderCircle className="animate-spin" />
@@ -204,22 +208,23 @@ export default function JoinShelter() {
   return (
     <div className="min-h-screen bg-zinc-900 text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col lg:flex-row items-center gap-8 mb-12">
-          <div className="lg:w-1/2">
+        <div className="flex flex-col lg:flex-row items-center gap-12 mb-12">
+          <div className="lg:w-1/3">
             <Image
               src="/dog-breaking-through-paper.png"
               alt="Excited dog breaking through paper"
               width={400}
               height={400}
+              priority
               className="rounded-full"
             />
           </div>
-          <div className="lg:w-1/2 text-center lg:text-left">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-4">
-              Get your shelter onboard <br />
+          <div className="text-center lg:text-left lg:w-2/3">
+            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+              Get your shelter onboard<br />
               in <span className="text-amber-500">minutes</span>.
             </h1>
-            <p className="text-lg text-gray-300">
+            <p className="text-lg text-zinc-400">
               Our AI onboarding agent will guide you through the process—just chat to get started.
             </p>
           </div>
@@ -227,11 +232,11 @@ export default function JoinShelter() {
 
         <StickToBottom>
           <StickyToBottomContent
-            className="relative h-[600px] bg-zinc-800 rounded-lg"
-            contentClassName="py-12 px-2"
+            className="relative h-[600px] bg-zinc-800/50 rounded-xl border border-zinc-700 mb-16"
+            contentClassName="py-12 px-4"
             content={
               messages.length === 0 ? (
-                <div className="text-center text-gray-400">
+                <div className="text-center text-zinc-500">
                   Start chatting to begin the onboarding process.
                 </div>
               ) : (
@@ -239,7 +244,7 @@ export default function JoinShelter() {
               )
             }
             footer={
-              <div className="sticky bottom-8 px-2">
+              <div className="sticky bottom-8 px-4">
                 <ScrollToBottom className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4" />
                 <ChatInput
                   value={input}

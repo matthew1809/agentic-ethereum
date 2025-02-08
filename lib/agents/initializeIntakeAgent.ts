@@ -4,13 +4,14 @@ import { Tool } from "@langchain/core/tools";
 import { SecretVaultWrapper } from 'nillion-sv-wrappers';
 import { orgConfig } from '../../config/nillionOrgConfig';
 import { MemorySaver } from "@langchain/langgraph";
-import type { Shelter } from '../../types/shelter';
+import type { ShelterUpload } from '../../types/shelter';
+import { initializeShelterAgent } from ".";
 
 const SHELTER_SCHEMA_ID = process.env.SHELTER_SCHEMA_ID;
 
 class CreateShelterTool extends Tool {
   name = "create_shelter";
-  description = "Creates a new shelter record with the collected information";
+  description = "Creates a new shelter record with the collected information, making sure to format the operational_costs as an integer.";
 
   async _call(shelterData: string) {
     try {
@@ -32,12 +33,12 @@ class CreateShelterTool extends Tool {
       await collection.init();
 
       // Prepare shelter data with encrypted sensitive fields
-      const shelter: Shelter = {
+      const shelter: ShelterUpload = {
         _id: crypto.randomUUID(),
         shelter_info: {
-          name: { $share: parsedData.name },
-          location: { $share: parsedData.location },
-          operational_costs: { $share: parsedData.operational_costs }
+          name: { $allot: parsedData.name },
+          location: { $allot: parsedData.location },
+          operational_costs: { $allot: parsedData.operational_costs.toString() }
         },
         metrics: {
           current_animals: 0,
@@ -52,7 +53,8 @@ class CreateShelterTool extends Tool {
       await collection.writeToNodes([shelter]);
       
       // Initialize the shelter's dedicated agent
-    //   await initializeShelterAgent(shelter);
+       await initializeShelterAgent(shelter);
+       
     // TODO: Implement this
       return `Successfully created shelter ${shelter._id}. A dedicated agent has been initialized for this shelter.`;
     } catch (error: unknown) {

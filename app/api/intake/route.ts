@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import type { Message as VercelChatMessage } from "ai";
 import { SecretVaultWrapper } from 'nillion-sv-wrappers';
 import { orgConfig } from '@/config/nillionOrgConfig.js';
-import type { Shelter } from '@/types/shelter';
+import type { ShelterFetched } from '@/types/shelter';
 import { agentManager } from '@/lib/agentManager';
 import {
   AIMessage,
@@ -11,7 +11,7 @@ import {
   HumanMessage,
 } from "@langchain/core/messages";
 
-const SCHEMA_ID = '03e30e97-abc9-4cee-96b4-ec9d67bbc2a6';
+const SCHEMA_ID = process.env.SHELTER_SCHEMA_ID;
 
 async function findSimilarShelters(name: string, location: string) {
   try {
@@ -29,7 +29,11 @@ async function findSimilarShelters(name: string, location: string) {
     await collection.init();
 
     // Get all shelters
-    const shelters = await collection.readFromNodes({}) as Shelter[];
+    const shelters = await collection.readFromNodes({}) as ShelterFetched[];
+
+    if(shelters.length === 0) {
+      return [];
+    }
     
     // Look for similar shelters
     return shelters.filter(shelter => {

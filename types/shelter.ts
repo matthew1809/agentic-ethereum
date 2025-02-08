@@ -18,7 +18,7 @@ export interface Animal {
     additional_notes?: string;
 }
 
-export interface Shelter {
+export interface ShelterFetched {
     _id: string;
     shelter_info: {
         name: {
@@ -40,6 +40,28 @@ export interface Shelter {
     animals: Animal[];
 }
 
+export interface ShelterUpload {
+    _id: string;
+    shelter_info: {
+        name: {
+            $allot: string;
+        };
+        location: {
+            $allot: string;
+        };
+        operational_costs: {
+            $allot: number;
+        };
+    };
+    metrics: {
+        current_animals: number;
+        monthly_intake: number;
+        neutering_count: number;
+        adoption_rate: number;
+    };
+    animals: Animal[];
+}
+
 export interface TwitterCredentials {
     apiKey: string;
     apiSecret: string;
@@ -47,10 +69,10 @@ export interface TwitterCredentials {
     accessTokenSecret: string;
 }
 
-export interface ShelterInfo {
-    name: { $share: string };
-    location: { $share: string };
-    operational_costs: { $share: number };
+export interface ShelterFetched {
+    name: { $allot: string };
+    location: { $allot: string };
+    operational_costs: { $allot: number };
 }
 
 export interface ShelterMetrics {

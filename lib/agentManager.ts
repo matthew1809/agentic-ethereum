@@ -3,7 +3,8 @@ import {
     initializeCoordinatorAgent, 
     initializeIntakeAgent 
 } from "./agents/index.ts";
-import type { Shelter } from "../types/shelter";
+import type { ShelterFetched } from "../types/shelter";
+import readData from '@/lib/data/readData';
 
 class AgentManager {
     private static instance: AgentManager;
@@ -11,6 +12,7 @@ class AgentManager {
     private shelterAgents = new Map<string, Awaited<ReturnType<typeof initializeShelterAgent>>>();
     private intakeAgent?: Awaited<ReturnType<typeof initializeIntakeAgent>>;
     private initialized = false;
+    private initializing = false;
 
     private constructor() {}
 
@@ -22,16 +24,48 @@ class AgentManager {
     }
 
     public async initialize() {
-        if (this.initialized) return;
+        if (this.initialized || this.initializing) return;
         
-        console.log('Initializing agent system...');
-        await Promise.all([
-            this.initializeCoordinatorAgent(),
-            this.initializeIntakeAgent()
-        ]);
-        
-        this.initialized = true;
-        console.log('Agent system initialized');
+        try {
+            this.initializing = true;
+            console.log('Initializing agent system...');
+            
+            // First initialize coordinator and intake agents
+            await Promise.all([
+                this.initializeCoordinatorAgent(),
+                this.initializeIntakeAgent()
+            ]);
+
+            // Then initialize shelter agents
+            await this.initializeAllShelterAgents();
+            
+            this.initialized = true;
+            console.log('Agent system initialized');
+        } finally {
+            this.initializing = false;
+        }
+    }
+
+    private async initializeAllShelterAgents() {
+        try {
+            console.log('Fetching all shelters from Nillion...');
+            const shelters = await readData();
+            
+            console.log(`Found ${shelters.length} shelters. Initializing agents...`);
+            for (const shelter of shelters) {
+                const existingAgent = this.shelterAgents.get(shelter._id);
+                if (!existingAgent) {
+                    console.log(`Initializing shelter agent for ${shelter._id}...`);
+                    const agent = await initializeShelterAgent(shelter);
+                    this.shelterAgents.set(shelter._id, agent);
+                }
+            }
+            
+            console.log('All shelter agents initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize shelter agents:', error);
+            throw error;
+        }
     }
 
     private async initializeCoordinatorAgent() {
@@ -50,11 +84,8 @@ class AgentManager {
         return this.intakeAgent;
     }
 
-    public async initializeShelterAgent(shelter: Shelter) {
-        if (!this.initialized) {
-            await this.initialize();
-        }
-
+    public async initializeShelterAgent(shelter: ShelterFetched) {
+        // Don't check initialization here to avoid circular dependency
         const existingAgent = this.shelterAgents.get(shelter._id);
         if (existingAgent) return existingAgent;
 
@@ -79,6 +110,9 @@ class AgentManager {
     }
 
     public async getShelterAgent(shelterId: string) {
+        if (!this.initialized) {
+            await this.initialize();
+        }
         return this.shelterAgents.get(shelterId);
     }
 }

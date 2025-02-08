@@ -3,7 +3,7 @@ import type { WriteResult } from 'nillion-sv-wrappers';
 import { orgConfig } from '@/config/nillionOrgConfig.js';
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import type { Shelter } from '@/types/shelter';
+import type { ShelterFetched } from '@/types/shelter';
 
 // Define types for our data structures
 interface Animal {
@@ -27,7 +27,7 @@ interface ShelterInput {
   animals: Animal[];
 }
 
-const SCHEMA_ID = '03e30e97-abc9-4cee-96b4-ec9d67bbc2a6';
+const SCHEMA_ID = process.env.SHELTER_SCHEMA_ID;
 
 interface OrgCredentials {
   secretKey: string;
@@ -114,6 +114,8 @@ export async function GET() {
       throw new Error('Missing required Nillion credentials');
     }
 
+    console.log('calling GET shelters');
+
     const credentials: OrgCredentials = {
       secretKey: orgConfig.orgCredentials.secretKey,
       orgDid: orgConfig.orgCredentials.orgDid
@@ -126,14 +128,21 @@ export async function GET() {
     );
     await collection.init();
 
+    console.log('reading shelters', collection);
+
     // Get all shelters
-    const shelters = await collection.readFromNodes({}) as Shelter[];
+    const shelters = await collection.readFromNodes({}) as ShelterFetched[];
+    console.log(shelters);
     
+    if(shelters.length === 0) {
+      return NextResponse.json([]);
+    }
+
     // Format the response to only include necessary information
     const formattedShelters = shelters.map(shelter => ({
       id: shelter._id,
-      name: shelter.shelter_info.name.$share,
-      location: shelter.shelter_info.location.$share,
+      name: shelter.shelter_info.name,
+      location: shelter.shelter_info.location,
       metrics: {
         currentAnimals: shelter.metrics.current_animals,
         monthlyIntake: shelter.metrics.monthly_intake,

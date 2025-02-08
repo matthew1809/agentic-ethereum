@@ -73,12 +73,13 @@ export default function SheltersPage() {
     fetchShelters();
   }, []);
 
-  const filteredShelters = shelters.filter(shelter =>
-    shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    shelter.location.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredShelters = shelters.filter(shelter =>
+  //   shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   shelter.location.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
   const selectedShelter = shelters.find(shelter => shelter.id === selectedShelterId);
+  console.log('selectedShelter', selectedShelter);
 
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || !selectedShelterId) return;
@@ -188,7 +189,7 @@ export default function SheltersPage() {
           />
 
           <div className="space-y-4">
-            {filteredShelters.map(shelter => (
+            {shelters.map(shelter => (
               <Card
                 key={shelter.id}
                 className={`p-4 cursor-pointer transition-colors ${

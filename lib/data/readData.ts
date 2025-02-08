@@ -1,7 +1,9 @@
 import { SecretVaultWrapper } from 'nillion-sv-wrappers';
 import { orgConfig } from '@/config/nillionOrgConfig';
-import type { Shelter } from '@/types/shelter';
-async function main(SCHEMA_ID: string): Promise<Shelter[]> {
+import type { ShelterFetched } from '@/types/shelter';
+
+const SCHEMA_ID = process.env.SHELTER_SCHEMA_ID || '';
+async function main(): Promise<ShelterFetched[]> {
     
   if(!orgConfig.orgCredentials.secretKey || !orgConfig.orgCredentials.orgDid) {
     throw new Error("Missing org credentials");
@@ -18,7 +20,7 @@ async function main(SCHEMA_ID: string): Promise<Shelter[]> {
   await collection.init();
 
    // Read all collection data from the nodes, decrypting the specified fields
-   const decryptedCollectionData = await collection.readFromNodes({}) as Shelter[];
+   const decryptedCollectionData = await collection.readFromNodes({}) as ShelterFetched[];
 
    return decryptedCollectionData;
 }

@@ -153,6 +153,12 @@ export default function AdoptPet() {
       }
     } catch (e) {
       console.error('Chat error:', e);
+      // Add error message to chat
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: 'I apologize, but I encountered an error while processing your request. Please try again.'
+      }]);
     } finally {
       setIsLoading(false);
     }

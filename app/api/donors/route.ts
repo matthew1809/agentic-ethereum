@@ -45,15 +45,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Convert ETH amount to Wei and store as string
-    const amountInWei = parseEther(body.amount.toString()).toString();
+    // Convert ETH amount to Wei and parse as string
+    const amountInWei = parseEther(body.amount.toString());
+    const amountAsString = amountInWei.toString();
 
     // Format the data according to the schema
     const donorData = [{
       _id: randomUUID(),
       donor_info: {
         name: { $allot: body.name },
-        amount: { $allot: amountInWei }
+        amount: { $allot: amountAsString }
       },
       recurring: body.recurring,
       duration_months: body.duration_months
