@@ -157,9 +157,10 @@ export default function DonatePage() {
   return (
     <div className="min-h-screen bg-[#1B1B1B] text-white">
       <div className="px-4 lg:px-8 py-24">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Left side - Donation Flow */}
+        <div className="w-full">
+          {/* Top section with image and donation flow */}
+          <div className="grid lg:grid-cols-2 gap-12 mb-12">
+            {/* Left side - Image */}
             <div>
               <Image
                 src="/dog-donate.png"
@@ -169,38 +170,43 @@ export default function DonatePage() {
                 className="object-contain"
                 priority
               />
-              <div className="mt-12">
-                <h2 className="text-3xl font-bold mb-12">How your donation flows</h2>
-                <div className="relative">
-                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-green-700" />
-                  <div className="space-y-12">
-                    {donationFlow.map((step) => (
-                      <div key={step.step} className="relative pl-12">
-                        <div className="absolute left-0 -translate-x-1/2 w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
-                          {step.step}
+            </div>
+
+            {/* Right side - Donation Flow */}
+            <div>
+              <h2 className="text-3xl font-bold mb-12">How your donation flows</h2>
+              <div className="relative">
+                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-green-700" />
+                <div className="space-y-12">
+                  {donationFlow.map((step) => (
+                    <div key={step.step} className="relative pl-12">
+                      <div className="absolute left-0 -translate-x-1/2 w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
+                        {step.step}
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{step.icon}</span>
+                          <h3 className="text-xl font-semibold">{step.title}</h3>
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl">{step.icon}</span>
-                            <h3 className="text-xl font-semibold">{step.title}</h3>
-                          </div>
-                          <div className="space-y-1 text-gray-300">
-                            {step.details.map((detail, i) => (
-                              <div key={`${step.step}-${i}`} className="flex items-start gap-2">
-                                <span className="text-amber-500">→</span>
-                                <p>{detail.text}</p>
-                              </div>
-                            ))}
-                          </div>
+                        <div className="space-y-1 text-gray-300">
+                          {step.details.map((detail, i) => (
+                            <div key={`${step.step}-${i}`} className="flex items-start gap-2">
+                              <span className="text-amber-500">→</span>
+                              <p>{detail.text}</p>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Right side - Donation Form */}
+          {/* Bottom section - Donation Form */}
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* Left side - Choose your impact */}
             <div ref={donateFormRef} className="space-y-8">
               <div>
                 <h2 className="text-3xl font-bold mb-6">Choose your impact</h2>
@@ -246,26 +252,6 @@ export default function DonatePage() {
                     />
                   </div>
 
-                  <div className="bg-[#2A2A2A] rounded-lg p-6">
-                    <h3 className="text-xl font-semibold mb-4">Real-time allocation summary</h3>
-                    <p className="text-gray-400 mb-4">{selectedAmount === 'custom' ? customAmount : selectedAmount} ETH today helps:</p>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span>🥩 30% → Food & nutrition</span>
-                        <span className="text-gray-400">{(Number(selectedAmount === 'custom' ? customAmount : selectedAmount) * 0.3).toFixed(4)} ETH</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>🏠 50% → Winter shelter supplies</span>
-                        <span className="text-gray-400">{(Number(selectedAmount === 'custom' ? customAmount : selectedAmount) * 0.5).toFixed(4)} ETH</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>🏥 20% → Emergency medical care</span>
-                        <span className="text-gray-400">{(Number(selectedAmount === 'custom' ? customAmount : selectedAmount) * 0.2).toFixed(4)} ETH</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-400 mt-4 italic">Impact changes dynamically based on shelters&apos; most urgent needs.</p>
-                  </div>
-
                   {primaryWallet && <div>
                     <h3 className="text-xl font-semibold mb-2">Verify your wallet address</h3>
                     <p className="text-gray-400 mb-4">Donations will be sent from your primary wallet.</p>
@@ -298,6 +284,30 @@ export default function DonatePage() {
                     {isProcessing ? 'Processing...' : 'Confirm & donate'}
                   </Button>}
                 </div>
+              </div>
+            </div>
+
+            {/* Right side - Real-time allocation summary */}
+            <div className="space-y-8">
+              <h2 className="text-3xl font-bold mb-6">Real-time allocation</h2>
+              <div className="bg-[#2A2A2A] rounded-lg p-8">
+                <h3 className="text-xl font-semibold mb-4">Real-time allocation summary</h3>
+                <p className="text-gray-400 mb-4">{selectedAmount === 'custom' ? customAmount : selectedAmount} ETH today helps:</p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span>🥩 30% → Food & nutrition</span>
+                    <span className="text-gray-400">{(Number(selectedAmount === 'custom' ? customAmount : selectedAmount) * 0.3).toFixed(4)} ETH</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>🏠 50% → Winter shelter supplies</span>
+                    <span className="text-gray-400">{(Number(selectedAmount === 'custom' ? customAmount : selectedAmount) * 0.5).toFixed(4)} ETH</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>🏥 20% → Emergency medical care</span>
+                    <span className="text-gray-400">{(Number(selectedAmount === 'custom' ? customAmount : selectedAmount) * 0.2).toFixed(4)} ETH</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-400 mt-4 italic">Impact changes dynamically based on shelters&apos; most urgent needs.</p>
               </div>
             </div>
           </div>
