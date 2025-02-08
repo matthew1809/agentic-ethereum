@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useCallback, FormEvent, ReactNode } from 'react';
+import { useState, useCallback } from 'react';
+import type { FormEvent } from 'react';
 import Image from 'next/image';
-import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, LoaderCircle } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-// Simple message type
+// Message type for chat
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -48,22 +48,6 @@ function ChatMessages({ messages }: { messages: Message[] }) {
         />
       ))}
     </div>
-  );
-}
-
-function ScrollToBottom({ className }: { className?: string }) {
-  const { isAtBottom, scrollToBottom } = useStickToBottomContext();
-
-  if (isAtBottom) return null;
-  return (
-    <Button
-      variant="outline"
-      className={className}
-      onClick={() => scrollToBottom()}
-    >
-      <ArrowDown className="w-4 h-4" />
-      <span>Scroll to bottom</span>
-    </Button>
   );
 }
 
@@ -108,33 +92,11 @@ function ChatInput(props: {
   );
 }
 
-function StickyToBottomContent(props: {
-  content: ReactNode;
-  footer?: ReactNode;
-  className?: string;
-  contentClassName?: string;
-}) {
-  const context = useStickToBottomContext();
-
-  return (
-    <div
-      ref={context.scrollRef}
-      style={{ width: "100%", height: "100%" }}
-      className={cn("grid grid-rows-[1fr,auto]", props.className)}
-    >
-      <div ref={context.contentRef} className={props.contentClassName}>
-        {props.content}
-      </div>
-
-      {props.footer}
-    </div>
-  );
-}
-
 export default function AdoptPet() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [livingSpace, setLivingSpace] = useState<'apartment' | 'house' | null>(null);
 
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -202,55 +164,59 @@ export default function AdoptPet() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
+    <div className="min-h-screen bg-[#1B1B1B] text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col lg:flex-row items-center gap-8 mb-12">
-          <div className="lg:w-1/2">
-            <Image
-              src="/cat-tall.png"
-              alt="Cat looking up"
-              width={400}
-              height={400}
-              className="rounded-full"
-            />
-          </div>
-          <div className="lg:w-1/2 text-center lg:text-left">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-4">
-              Find your perfect <br />
-              pet <span className="text-amber-500">match</span>.
-            </h1>
-            <p className="text-lg text-gray-300">
-              Our AI matching agent will help you find the perfect pet based on your lifestyle and preferences.
-            </p>
-          </div>
+        {/* Title Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl lg:text-7xl font-bold mb-6">
+            Find your <span className="text-amber-500">perfect</span> pet<br />
+            companion.
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Our AI-powered adoption system learns about your preferences and finds pets
+            that suit your lifestyle.
+          </p>
         </div>
 
-        <StickToBottom>
-          <StickyToBottomContent
-            className="relative h-[600px] bg-zinc-800 rounded-lg"
-            contentClassName="py-8 px-2"
-            content={
-              messages.length === 0 ? (
-                <div className="text-center text-gray-400">
-                  Start chatting to find your perfect pet match.
-                </div>
-              ) : (
-                <ChatMessages messages={messages} />
-              )
-            }
-            footer={
-              <div className="sticky bottom-8 px-2">
-                <ScrollToBottom className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4" />
-                <ChatInput
-                  value={input}
-                  onChange={handleInputChange}
-                  onSubmit={handleSubmit}
-                  loading={isLoading}
-                />
+        {/* Main Content Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          {/* Left Side - Dog Image */}
+          <div className="relative">
+            <Image
+              src="/dog-matching.png"
+              alt="Dog"
+              width={600}
+              height={600}
+              className="w-full h-auto"
+              priority
+            />
+          </div>
+
+          {/* Right Side - Chat Interface */}
+          <div className="flex flex-col gap-6">
+         
+            {/* Chat Area */}
+            <div className="bg-zinc-800/50 rounded-xl p-6">
+              <div className="min-h-[300px] mb-6">
+                {messages.length === 0 ? (
+                  <div className="text-center text-gray-400 py-12">
+                    Start chatting to find your perfect pet match.
+                  </div>
+                ) : (
+                  <ChatMessages messages={messages} />
+                )}
               </div>
-            }
-          />
-        </StickToBottom>
+
+              {/* Chat Input */}
+              <ChatInput
+                value={input}
+                onChange={handleInputChange}
+                onSubmit={handleSubmit}
+                loading={isLoading}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

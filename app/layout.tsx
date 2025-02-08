@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import Footer from "@/components/footer";
+import Navigation from "@/components/navigation";
+
+import {
+  DynamicContextProvider,
+} from "@dynamic-labs/sdk-react-core";
+import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
+import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,34 +25,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen bg-primary`}>
-        {/* Navigation */}
-        <nav className="flex items-center justify-between p-4 lg:px-8 fixed w-full top-0 z-50 bg-transparent">
-          <div className="flex gap-8">
-            <Link href="/" className="text-white border-b-2 border-amber-500">Home</Link>
-            <Link href="/adopt" className="text-gray-300 hover:text-white">Adopt</Link>
-            <Link href="/donate" className="text-gray-300 hover:text-white">Donate</Link>
-            <Link href="/about" className="text-gray-300 hover:text-white">About</Link>
-            <Link href="/insights" className="text-gray-300 hover:text-white">Insights</Link>
-          </div>
-          <div className="flex gap-4">
-            <Button variant="ghost" className="text-gray-300 hover:text-white">
-              Log in
-            </Button>
-            <Link href="/join">
-              <Button className="bg-amber-500 hover:bg-amber-600 text-black">
-                Join in
-              </Button>
-            </Link>
-          </div>
-        </nav>
-
+        <DynamicContextProvider
+      settings={{
+        // Find your environment id at https://app.dynamic.xyz/dashboard/developer
+        environmentId: "afa4f40f-a9a3-4bea-ab17-4a7faf287247",
+        walletConnectors: [EthereumWalletConnectors, ZeroDevSmartWalletConnectors],
+      }}
+    >
+        <Navigation />
         {/* Page Content */}
         <main className="pt-16">
           {children}
         </main>
-
         {/* Footer */}
         <Footer />
+        </DynamicContextProvider>
       </body>
     </html>
   );
