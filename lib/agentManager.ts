@@ -1,6 +1,6 @@
-import initializeShelterAgent from "../agents/initializeShelterAgent";
-import initializeCoordinatorAgent from "../agents/initializeAggregationAgent";
-import type { Shelter } from "../types/shelter";
+import initializeShelterAgent from "@/agents/initializeShelterAgent";
+import initializeCoordinatorAgent from "@/agents/initializeAggregationAgent";
+import type { Shelter } from "@/types/shelter";
 
 class AgentManager {
     private static instance: AgentManager;

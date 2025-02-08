@@ -1,9 +1,8 @@
 import { HumanMessage } from "@langchain/core/messages";
-import readData from "../data/readData";
-import initializeAgent from "../agents/initializeShelterAgent";
-import initializeCoordinatorAgent from "../agents/initializeAggregationAgent";
+import readData from "@/data/readData";
+import initializeAgent from "@/agents/initializeShelterAgent";
+import initializeCoordinatorAgent from "@/agents/initializeAggregationAgent";
 import { createInterface } from 'node:readline/promises';
-import type { ChunkOutput } from "@langchain/core/dist/callbacks/manager";
 
 import * as dotenv from "dotenv";
 import * as readline from "readline";

@@ -25,9 +25,6 @@ const nextConfig = {
     };
 
     return config;
-  },
-  experimental: {
-    serverExternalPackages: ['@coinbase/agentkit']
   }
 };
 

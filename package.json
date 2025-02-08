@@ -11,6 +11,9 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "engines" : { 
+    "node" : ">=23.0.0"
+  },
   "dependencies": {
     "@coinbase/agentkit": "^0.1.1",
     "@coinbase/agentkit-langchain": "^0.1.0",
