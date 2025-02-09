@@ -389,7 +389,7 @@ export default function DonatePage() {
               being distributed to shelters in need!
             </p>
             {tx && (
-              <p className="text-gray-300 mt-2">
+              <p className="text-gray-300 mt-2 break-all">
                 Transaction hash: <a href={`https://etherscan.io/tx/${tx}`} target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:text-amber-400">
                   {tx}
                 </a>

@@ -15,6 +15,9 @@ interface Message {
 }
 
 function ChatMessageBubble({ message, isAgent }: { message: Message; isAgent?: boolean }) {
+  // Split message content into paragraphs based on double newlines
+  const paragraphs = message.content.split(/\n\s*\n/);
+  
   return (
     <div
       className={`flex items-start gap-3 mb-4 ${
@@ -31,7 +34,11 @@ function ChatMessageBubble({ message, isAgent }: { message: Message; isAgent?: b
           isAgent ? 'bg-zinc-700' : 'bg-amber-500 text-zinc-900'
         }`}
       >
-        {message.content}
+        {paragraphs.map((paragraph, index) => (
+          <p key={index} className={`whitespace-pre-wrap ${index !== 0 ? 'mt-4' : ''}`}>
+            {paragraph.trim()}
+          </p>
+        ))}
       </div>
     </div>
   );
@@ -54,10 +61,19 @@ function ChatMessages({ messages }: { messages: Message[] }) {
 function ChatInput(props: {
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   loading?: boolean;
   className?: string;
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [props.value]);
+
   return (
     <form
       onSubmit={(e) => {
@@ -67,24 +83,28 @@ function ChatInput(props: {
       }}
       className={cn("flex w-full flex-col", props.className)}
     >
-      <div className="relative">
-        <input
+      <div className="relative flex items-center">
+        <textarea
+          ref={textareaRef}
           value={props.value}
           placeholder="Message our AI onboarding agent"
           onChange={props.onChange}
-          className="w-full bg-[#1B1B1B] rounded-lg px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          rows={1}
+          className="w-full bg-[#1B1B1B] rounded-lg px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none overflow-hidden min-h-[44px] pr-[100px]"
         />
-        <Button 
-          type="submit" 
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg" 
-          disabled={props.loading}
-        >
-          {props.loading ? (
-            <LoaderCircle className="animate-spin" />
-          ) : (
-            'Send'
-          )}
-        </Button>
+        <div className="absolute inset-y-0 right-2 flex items-center">
+          <Button 
+            type="submit" 
+            className="bg-green-600 hover:bg-green-700 text-white px-4 h-[34px] rounded-lg" 
+            disabled={props.loading}
+          >
+            {props.loading ? (
+              <LoaderCircle className="w-4 h-4 animate-spin" />
+            ) : (
+              'Send'
+            )}
+          </Button>
+        </div>
       </div>
     </form>
   );
@@ -97,12 +117,21 @@ export default function AdoptPet() {
   const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
+  // Scroll to bottom whenever messages change
+  const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      setTimeout(() => {
+        chatContainerRef.current?.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 100);
     }
   }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -172,13 +201,13 @@ export default function AdoptPet() {
     }
   }, [input, isLoading, messages]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   }, []);
 
   return (
     <div className="min-h-screen bg-[#1B1B1B] text-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-8">
         {/* Title Section */}
         <div className="text-center mb-12">
           <h1 className="text-5xl lg:text-7xl font-bold mb-6">
@@ -214,7 +243,7 @@ export default function AdoptPet() {
               </div>
               <div 
                 ref={chatContainerRef}
-                className="min-h-[400px] max-h-[600px] overflow-y-auto p-4 space-y-4"
+                className="min-h-[400px] max-h-[600px] overflow-y-auto p-4 space-y-4 scroll-smooth overscroll-contain"
               >
                 {!hasUserSentMessage ? (
                   <div className="flex justify-end">
@@ -223,7 +252,14 @@ export default function AdoptPet() {
                     </Button>
                   </div>
                 ) : (
-                  <ChatMessages messages={messages} />
+                  <div className="flex flex-col space-y-4">
+                    <ChatMessages messages={messages} />
+                    {isLoading && (
+                      <div className="flex justify-center">
+                        <LoaderCircle className="w-6 h-6 animate-spin text-amber-500" />
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
