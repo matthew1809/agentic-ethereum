@@ -47,12 +47,12 @@ export default function SheltersPage() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchShelters = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/shelters');
-        if (!response.ok) throw new Error('Failed to fetch shelters');
-        const data = await response.json();
-        setShelters(data);
+        const sheltersResponse = await fetch('/api/shelters');
+        if (!sheltersResponse.ok) throw new Error('Failed to fetch shelters');
+        const sheltersData = await sheltersResponse.json();
+        setShelters(sheltersData);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'An error occurred');
       } finally {
@@ -60,7 +60,7 @@ export default function SheltersPage() {
       }
     };
 
-    fetchShelters();
+    fetchData();
   }, []);
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { createPublicClient, createWalletClient, http, type Address, parseEther } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia } from 'viem/chains';
 import { ANIMAL_WELFARE_CONFIG } from '@/contracts/animalWelfareContractConfig';
 import readData from '@/lib/data/readData';
@@ -41,6 +42,10 @@ export async function initializeShelterContracts(privateKey: string) {
   try {
     console.log('Initializing shelter contracts...');
     
+    // Create account from private key
+    const account = privateKeyToAccount(`0x${privateKey}` as `0x${string}`);
+    console.log('Our wallet address:', account.address);
+    
     // Initialize clients
     const publicClient = createPublicClient({
       chain: baseSepolia,
@@ -50,8 +55,21 @@ export async function initializeShelterContracts(privateKey: string) {
     const walletClient = createWalletClient({
       chain: baseSepolia,
       transport: http(),
-      account: privateKey as Address
+      account
     });
+
+    // First, check if we're the contract owner
+    const contractOwner = await publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi: ANIMAL_WELFARE_CONFIG.abi,
+      functionName: 'owner'
+    }) as Address;
+
+    console.log('Contract owner:', contractOwner);
+
+    if (contractOwner.toLowerCase() !== account.address.toLowerCase()) {
+      throw new Error(`Not authorized. Contract owner is ${contractOwner}, but we're using ${account.address}`);
+    }
 
     // Get all shelters from Nillion
     const shelters: ShelterFetched[] = await readData();
@@ -105,7 +123,8 @@ export async function initializeShelterContracts(privateKey: string) {
             args: [
               shelterAddress,
               parseEther(monthlyAllowanceETH)   
-            ]
+            ],
+            account
           });
 
           const hash = await walletClient.writeContract(request);
@@ -127,4 +146,4 @@ export async function initializeShelterContracts(privateKey: string) {
     console.error('Failed to initialize shelter contracts:', error);
     throw error;
   }
-};
+}

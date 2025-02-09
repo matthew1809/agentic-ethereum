@@ -1,7 +1,37 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { LoaderCircle } from 'lucide-react';
+
+interface BlockchainStats {
+  balance: string;
+  shelterCount: number;
+  donationCount: number;
+}
 
 const About = () => {
+  const [stats, setStats] = useState<BlockchainStats>({ balance: '0', shelterCount: 0, donationCount: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/stats');
+        if (!response.ok) throw new Error('Failed to fetch stats');
+        const data = await response.json();
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch blockchain stats:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#1B1B1B] text-white">
       {/* Hero Section */}
@@ -37,6 +67,61 @@ const About = () => {
               className="rounded-lg"
               priority
             />
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="mt-16 mb-24">
+          <h2 className="text-3xl font-bold mb-8">Impact so far</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-zinc-800/50 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-400">Total Balance</h3>
+                <span className="text-xs text-gray-500">Base Sepolia</span>
+              </div>
+              <div className="flex items-baseline">
+                {isLoading ? (
+                  <LoaderCircle className="w-6 h-6 animate-spin text-amber-500" />
+                ) : (
+                  <>
+                    <span className="text-2xl font-bold text-white">{stats.balance}</span>
+                    <span className="ml-1 text-gray-400">ETH</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-400">Registered Shelters</h3>
+                <span className="text-xs text-gray-500">Active</span>
+              </div>
+              <div className="flex items-baseline">
+                {isLoading ? (
+                  <LoaderCircle className="w-6 h-6 animate-spin text-amber-500" />
+                ) : (
+                  <>
+                    <span className="text-2xl font-bold text-white">{stats.shelterCount}</span>
+                    <span className="ml-1 text-gray-400">shelters</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-400">Total Donations</h3>
+                <span className="text-xs text-gray-500">All time</span>
+              </div>
+              <div className="flex items-baseline">
+                {isLoading ? (
+                  <LoaderCircle className="w-6 h-6 animate-spin text-amber-500" />
+                ) : (
+                  <>
+                    <span className="text-2xl font-bold text-white">{stats.donationCount}</span>
+                    <span className="ml-1 text-gray-400">transactions</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
