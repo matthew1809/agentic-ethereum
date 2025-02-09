@@ -25,7 +25,7 @@ const About = () => {
               —a project that exposed the global scale of the issue and the lack of efficient
               solutions. Inspired by this research, we wanted to go beyond data and create an
               AI-powered platform that actively helps shelters and adopters find the right
-              match.
+              match while powering funding to reduce pet homelessness long term.
             </p>
           </div>
           <div>

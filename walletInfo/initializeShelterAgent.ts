@@ -7,6 +7,7 @@ import * as dotenv from "dotenv";
 import * as fs from "node:fs";
 import { agentStore } from "../lib/store/agentStore";
 import path from "node:path";
+import { cdpApiActionProvider } from "@coinbase/agentkit";
 dotenv.config();
 
 // Helper to get the actual value regardless of $share or $allot
@@ -118,13 +119,17 @@ async function initializeShelterAgent(shelter: any): Promise<{
         const agentkit = await AgentKit.from({
             walletProvider,
             actionProviders: [
-              walletActionProvider(), 
-                      twitterActionProvider({
-                          apiKey: process.env.TWITTER_API_KEY,
-                          apiSecret: process.env.TWITTER_API_SECRET,
-                          accessToken: process.env.TWITTER_ACCESS_TOKEN,
-                          accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-                      })
+                walletActionProvider(), 
+                twitterActionProvider({
+                    apiKey: process.env.TWITTER_API_KEY,
+                    apiSecret: process.env.TWITTER_API_SECRET,
+                    accessToken: process.env.TWITTER_ACCESS_TOKEN,
+                    accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+              }),
+              cdpApiActionProvider({
+                    apiKeyName: process.env.CDP_API_KEY_NAME,
+                    apiKeyPrivateKey: process.env.CDP_API_KEY_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+                })
             ] 
         });
         console.log("AgentKit initialized successfully");
