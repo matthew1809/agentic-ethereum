@@ -71,6 +71,12 @@ export default function SheltersPage() {
 
   const selectedShelter = shelters.find(shelter => shelter.id === selectedShelterId);
 
+  // Add filtered shelters logic
+  const filteredShelters = shelters.filter(shelter => 
+    shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    shelter.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || !selectedShelterId) return;
 
@@ -180,19 +186,16 @@ export default function SheltersPage() {
         <div className="flex gap-4 mb-8">
           <Input
             type="text"
-            placeholder="Search"
+            placeholder="Search by name or location"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-[200px] bg-zinc-900 border-none text-white placeholder:text-gray-400"
+            className="max-w-[300px] bg-zinc-900 border-none text-white placeholder:text-gray-400"
           />
-          <Button variant="outline" className="bg-zinc-900 border-none text-white hover:bg-zinc-800">
-            Filter
-          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-6">
-            {shelters.map(shelter => (
+            {filteredShelters.map(shelter => (
               <Card
                 key={shelter.id}
                 className={`p-6 cursor-pointer transition-colors bg-zinc-900 border-none hover:bg-zinc-800 text-white ${
