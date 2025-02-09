@@ -65,20 +65,8 @@ async function initializeShelterAgent(shelter: any): Promise<{
         });
         console.log('LLM initialized successfully');
 
-        let walletDataStr: string | null = null;
-        // console.log('Checking for existing wallet data...');
-        
-        // if (fs.existsSync(WALLET_DATA_FILE)) {
-        //     try {
-        //         walletDataStr = fs.readFileSync(WALLET_DATA_FILE, "utf8");
-        //         console.log('Found existing wallet data');
-        //     } catch (error) {
-        //         console.error("Error reading wallet data:", error);
-        //     }
-        // } else {
-        //     console.log('No existing wallet data found');
-        // }
-
+        const walletDataStr: string | null = null;
+       
         const config = {
             apiKeyName: process.env.CDP_API_KEY_NAME,
             apiKeyPrivateKey: process.env.CDP_API_KEY_PRIVATE_KEY?.replace(/\\n/g, "\n"),
