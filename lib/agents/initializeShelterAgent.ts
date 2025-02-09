@@ -90,9 +90,9 @@ async function initializeShelterAgent(shelter: any): Promise<{
         const walletProvider = await CdpWalletProvider.configureWithWallet(config);
         console.log("CDP Wallet Provider initialized successfully");
 
-        const walletAddress = await walletProvider.getAddress();
-        fs.writeFileSync(`wallet_address_${shelter._id}.txt`, walletAddress);
-        console.log("Wallet address saved successfully");
+        // const walletAddress = await walletProvider.getAddress();
+        // fs.writeFileSync(`wallet_address_${shelter._id}.txt`, walletAddress);
+        // console.log("Wallet address saved successfully");
 
         console.log("Initializing AgentKit...");
         const agentkit = await AgentKit.from({
