@@ -6,7 +6,6 @@ import { MemorySaver } from "@langchain/langgraph";
 import * as dotenv from "dotenv";
 import * as fs from "node:fs";
 import { agentStore } from "../store/agentStore";
-import path from "node:path";
 import { cdpApiActionProvider } from "@coinbase/agentkit";
 dotenv.config();
 
@@ -58,14 +57,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log('Starting agent initialization...');
         validateEnvironment();
 
-        // Configure a file to persist the agent's CDP MPC Wallet Data
-        const WALLET_INFO_DIR = path.join(process.cwd(), 'walletInfo');
-        const WALLET_DATA_FILE = path.join(WALLET_INFO_DIR, `wallet_data_${shelter._id}.txt`);
-
-        // Ensure walletInfo directory exists
-        if (!fs.existsSync(WALLET_INFO_DIR)) {
-            fs.mkdirSync(WALLET_INFO_DIR, { recursive: true });
-        }
+        const WALLET_DATA_FILE = `wallet_data_${shelter._id}.txt`;
 
         console.log('Initializing LLM...');
         const llm = new ChatAnthropic({
@@ -74,18 +66,18 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log('LLM initialized successfully');
 
         let walletDataStr: string | null = null;
-        console.log('Checking for existing wallet data...');
+        // console.log('Checking for existing wallet data...');
         
-        if (fs.existsSync(WALLET_DATA_FILE)) {
-            try {
-                walletDataStr = fs.readFileSync(WALLET_DATA_FILE, "utf8");
-                console.log('Found existing wallet data');
-            } catch (error) {
-                console.error("Error reading wallet data:", error);
-            }
-        } else {
-            console.log('No existing wallet data found');
-        }
+        // if (fs.existsSync(WALLET_DATA_FILE)) {
+        //     try {
+        //         walletDataStr = fs.readFileSync(WALLET_DATA_FILE, "utf8");
+        //         console.log('Found existing wallet data');
+        //     } catch (error) {
+        //         console.error("Error reading wallet data:", error);
+        //     }
+        // } else {
+        //     console.log('No existing wallet data found');
+        // }
 
         const config = {
             apiKeyName: process.env.CDP_API_KEY_NAME,
@@ -111,8 +103,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log("CDP Wallet Provider initialized successfully");
 
         const walletAddress = await walletProvider.getAddress();
-        const WALLET_ADDRESS_FILE = path.join(WALLET_INFO_DIR, `wallet_address_${shelter._id}.txt`);
-        fs.writeFileSync(WALLET_ADDRESS_FILE, walletAddress);
+        fs.writeFileSync(`wallet_address_${shelter._id}.txt`, walletAddress);
         console.log("Wallet address saved successfully");
 
         console.log("Initializing AgentKit...");
