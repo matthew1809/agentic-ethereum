@@ -24,7 +24,7 @@ export default function WhyTrustUs() {
     <div className="bg-[#fef3e3] py-24 px-4 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Why trust us? AI + ZK ensure fairness
+          Why trust us? AI + Web3 ensures fairness
         </h2>
         <p className="text-lg text-gray-600 mb-12">
           Smart donations, zero fraud, full transparency.

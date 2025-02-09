@@ -75,9 +75,9 @@ export default function Navigation() {
         </Link>
       </div>
       <div className="flex gap-4">
-        <Button variant="ghost" className="text-gray-300 hover:text-white">
+        {/* <Button variant="ghost" className="text-gray-300 hover:text-white">
           Log in
-        </Button>
+        </Button> */}
         <Link href="/join">
           <Button className="bg-amber-500 hover:bg-amber-600 text-black">
             Join in

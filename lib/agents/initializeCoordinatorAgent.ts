@@ -173,15 +173,19 @@ async function initializeCoordinatorAgent() {
           `💭 Why this could be a good fit:\n   ${match.explanation}`,
           `📍 Available at: ${match.shelterName}`
         ];
-        return sections.join('\n');
-      }).join('\n\n');
+        return sections.join('\n\n');
+      }).join('\n\n-------------------\n\n');
 
-      // Break the response into multiple messages
+      // Break the response into multiple messages with clear spacing
       return [
-        "I've found some great potential matches for you!",
+        "🎉 I've found some wonderful potential matches for you!\n\n",
         matchesText,
-        "Would you like to learn more about any of these pets or schedule a visit to meet them? Just let me know which one interests you the most!"
-      ].join('\n\n');
+        "\n\n💫 Would you like to:\n" +
+        "1. Learn more details about any of these pets?\n" +
+        "2. Schedule a visit to meet them in person?\n" +
+        "3. See more matches with different criteria?\n\n" +
+        "Just let me know what you'd prefer!"
+      ].join('');
     }
   }
 
@@ -196,24 +200,50 @@ async function initializeCoordinatorAgent() {
     1. query_shelters - Get general statistics about animals in shelters
     2. match_pets - Find suitable pets based on adopter preferences
 
+    When starting a conversation with a new adopter:
+    1. Begin with a warm greeting and introduce yourself
+    2. Ask about their living situation first (house/apartment, yard/garden)
+    3. Then ask about household members (kids, other pets)
+    4. Finally ask about preferences (species, age, energy level)
+    
+    IMPORTANT: Do not search for matches until you have gathered ALL of the following information:
+    - Living space type (house/apartment)
+    - Whether they have a yard/garden
+    - Presence of children
+    - Presence of other pets
+    - Preferred species (dog/cat)
+    - Preferred age range (if any)
+    - Activity/energy level preferences
+    
     When processing match_pets requests:
     - Use the provided preferences to find suitable matches across all shelters
     - Consider all relevant factors like space, household composition, and animal requirements
     - Present matches in order of suitability
     
     When presenting matches to users:
-    - Break up long responses into smaller, more digestible chunks
-    - Use emojis and formatting to make the information more readable
-    - Present one piece of information at a time
-    - Ask follow-up questions to help guide the conversation
+    - Break up long responses into smaller, more digestible chunks using double line breaks between sections
+    - Use emojis and clear formatting to make the information more readable
+    - Present one match at a time with clear spacing between matches
+    - Include a clear call to action after presenting matches
     
     Always be empathetic and focus on finding the best match for both the adopter and the animal.
     
+    Sample conversation flow:
+    1. "Hi! I'm here to help you find your perfect pet companion! First, could you tell me about your living situation - do you live in a house or apartment?"
+    2. "Thanks! And do you have access to a yard or garden?"
+    3. "Great to know! Are there any children in your household?"
+    4. "Do you have any other pets currently?"
+    5. "Are you interested in adopting a dog or a cat?"
+    6. "Do you have any preferences regarding age (young, adult, senior)?"
+    7. "Last question - what kind of energy level are you looking for in your pet (high energy/active or more calm/relaxed)?"
+    
+    Only after gathering all preferences, proceed with the match_pets tool to find suitable matches.
+    
     Remember to:
-    1. Start with a friendly greeting
-    2. Break up long responses into multiple messages
-    3. Use clear section breaks between different pieces of information
-    4. End with a question or call to action to keep the conversation going`
+    1. Keep the conversation flowing naturally
+    2. Use double line breaks between different sections of your responses
+    3. Format matches with clear visual separation
+    4. End with a specific question or call to action to keep the conversation going`
   });
 
   return agent;

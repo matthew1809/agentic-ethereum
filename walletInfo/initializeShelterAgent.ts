@@ -5,19 +5,18 @@ import { ChatAnthropic } from "@langchain/anthropic";
 import { MemorySaver } from "@langchain/langgraph";
 import * as dotenv from "dotenv";
 import * as fs from "node:fs";
-import { agentStore } from "../store/agentStore";
+import { agentStore } from "../lib/store/agentStore";
+import path from "node:path";
 dotenv.config();
-
-// Configure a file to persist the agent's CDP MPC Wallet Data
-const WALLET_DATA_FILE = "wallet_data.txt";
 
 // Helper to get the actual value regardless of $share or $allot
 function getValue<T>(field: { $share: T } | { $allot: T } | T): T {
     if (field && typeof field === 'object') {
-        if ('$share' in field) return field.$share;
-        if ('$allot' in field) return field.$allot;
+        return ('$share' in field) ? field.$share :
+               ('$allot' in field) ? field.$allot :
+               field as T;
     }
-    return field as T;
+    return field;
 }
 
 // Add environment validation
@@ -57,6 +56,15 @@ async function initializeShelterAgent(shelter: any): Promise<{
     try {
         console.log('Starting agent initialization...');
         validateEnvironment();
+
+        // Configure a file to persist the agent's CDP MPC Wallet Data
+        const WALLET_INFO_DIR = path.join(process.cwd(), 'walletInfo');
+        const WALLET_DATA_FILE = path.join(WALLET_INFO_DIR, `wallet_data_${shelter._id}.txt`);
+
+        // Ensure walletInfo directory exists
+        if (!fs.existsSync(WALLET_INFO_DIR)) {
+            fs.mkdirSync(WALLET_INFO_DIR, { recursive: true });
+        }
 
         console.log('Initializing LLM...');
         const llm = new ChatAnthropic({
@@ -100,6 +108,11 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log("Initializing CDP Wallet Provider...");
         const walletProvider = await CdpWalletProvider.configureWithWallet(config);
         console.log("CDP Wallet Provider initialized successfully");
+
+        const walletAddress = await walletProvider.getAddress();
+        const WALLET_ADDRESS_FILE = `wallet_address_${shelter._id}.txt`;
+        fs.writeFileSync(WALLET_ADDRESS_FILE, walletAddress);
+        console.log("Wallet address saved successfully");
 
         console.log("Initializing AgentKit...");
         const agentkit = await AgentKit.from({
@@ -219,7 +232,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log('Shelter added to agent store successfully');
 
         console.log('Registering agent with coordinator...');
-        const { registerAgent } = await import('./initializeCoordinatorAgent');
+        const { registerAgent } = await import('../lib/agents/initializeCoordinatorAgent');
         await registerAgent(shelter._id, agent);
         console.log('Agent registered with coordinator successfully');
 

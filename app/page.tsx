@@ -23,7 +23,7 @@ export default function Home() {
               <Button className="bg-amber-500 hover:bg-amber-600 text-black px-8 py-6 text-lg">
                 Donate smart
               </Button>
-              <Button variant="outline" className="text-amber-500 border-amber-500 hover:bg-amber-500/10 px-8 py-6 text-lg">
+              <Button variant="outline" className="bg-[#212121] text-amber-500 border-amber-500 border-solid px-8 py-6 text-lg">
                 Adopt now
               </Button>
             </div>

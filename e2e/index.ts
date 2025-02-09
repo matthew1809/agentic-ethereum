@@ -1,6 +1,6 @@
 import { HumanMessage } from "@langchain/core/messages";
 import readData from "@/lib/data/readData";
-import initializeAgent from "@/lib/agents/initializeShelterAgent";
+import initializeAgent from "@/walletInfo/initializeShelterAgent";
 import initializeCoordinatorAgent from "@/lib/agents/initializeCoordinatorAgent";
 import { createInterface } from 'node:readline/promises';
 

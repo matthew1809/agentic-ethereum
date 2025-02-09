@@ -21,15 +21,9 @@ export interface Animal {
 export interface ShelterFetched {
     _id: string;
     shelter_info: {
-        name: {
-            $share: string;
-        };
-        location: {
-            $share: string;
-        };
-        operational_costs: {
-            $share: number;
-        };
+        name: string;
+        location:  string;
+        operational_costs: string;
     };
     metrics: {
         current_animals: number;
@@ -70,9 +64,9 @@ export interface TwitterCredentials {
 }
 
 export interface ShelterFetched {
-    name: { $allot: string };
-    location: { $allot: string };
-    operational_costs: { $allot: number };
+    name: string;
+    location: string;
+    operational_costs: string;
 }
 
 export interface ShelterMetrics {

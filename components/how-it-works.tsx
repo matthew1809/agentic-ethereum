@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { MapPin, TrendingUp, PieChart, Plus, CheckCircle, DollarSign, Shield } from 'lucide-react';
+import { Button } from "@/components/ui/button"
 
 export default function HowItWorks() {
   const [view, setView] = useState<'donor' | 'shelter'>('donor');
@@ -59,7 +60,7 @@ export default function HowItWorks() {
       <div className="max-w-7xl mx-auto relative">
         <div className="absolute right-0 top-0 -translate-y-1/4 z-10">
           <Image
-            src="/dog-breaking-through-paper.png"
+            src="/dog-paper-main.png"
             alt="Happy dog breaking through paper"
             width={400}
             height={400}
@@ -67,12 +68,12 @@ export default function HowItWorks() {
           />
         </div>
 
-        <h2 className="text-4xl font-bold text-gray-900 mb-8 max-w-2xl">
+        <h2 className="text-4xl font-bold text-gray-900 mb-12 max-w-2xl">
           How AI ensures smart funding & adoption
         </h2>
         
-        <div className="flex gap-4 mb-12">
-          <button
+        <div className="inline-flex border border-zinc-300 rounded-lg p-1 bg-white/50 mb-12">
+        <button
             type="button"
             onClick={() => setView('donor')}
             className={`px-6 py-3 rounded-lg transition-colors ${
@@ -94,7 +95,7 @@ export default function HowItWorks() {
           >
             I&apos;m a shelter
           </button>
-        </div>
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {(view === 'donor' ? donorSteps : shelterSteps).map((step) => (
@@ -112,7 +113,7 @@ export default function HowItWorks() {
 
         <div className="mt-12">
           <a
-            href={view === 'donor' ? '/fund-impact' : '/get-ai-agent'}
+            href={view === 'donor' ? '/donate' : '/join'}
             className="text-green-700 font-medium hover:underline inline-flex items-center"
           >
             {view === 'donor' ? 'Fund impact' : 'Get an AI agent'} →

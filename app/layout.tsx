@@ -4,7 +4,7 @@ import "./globals.css";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
-// import { agentManager } from "@/lib/agentManager";
+import { agentManager } from "@/lib/agentManager";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 
@@ -20,13 +20,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // // Initialize all agents on app startup
-  // try {
-  //   await agentManager.initialize();
-  // } catch (error) {
-  //   console.error('Failed to initialize agents:', error);
-  //   // Continue loading the app even if agent initialization fails
-  // }
+  // Initialize all agents on app startup
+  try {
+    await agentManager.initialize();
+  } catch (error) {
+    console.error('Failed to initialize agents:', error);
+    // Continue loading the app even if agent initialization fails
+  }
 
   return (
     <html lang="en">

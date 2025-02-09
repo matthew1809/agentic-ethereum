@@ -1,6 +1,7 @@
 'use client'
 import Image from 'next/image';
 import { Button } from "@/components/ui/button"
+import Link from 'next/link';
 
 export default function DonationImpact() {
   return (
@@ -27,10 +28,14 @@ export default function DonationImpact() {
 
           <div className="flex gap-4">
             <Button className="bg-amber-500 hover:bg-amber-600 text-black px-6 py-2">
-              Donate now
+              <Link href="/donate">
+                Donate now
+              </Link>
             </Button>
-            <Button variant="outline" className="text-amber-500 border-amber-500 hover:bg-amber-500/10 px-6 py-2">
-              Impact calculator
+            <Button variant="outline" className=" bg-transparent text-amber-500 border-amber-500 px-6 py-2">
+              <Link href="/about">
+              Learn more
+              </Link>
             </Button>
           </div>
         </div>

@@ -164,7 +164,7 @@ export default function DonatePage() {
               Give smarter, save more lives.
             </h1>
             <p className="text-xl text-zinc-300 mb-8">
-              Every dollar goes directly into our smart funding system, ensuring shelters get exactly what they need—nothing more, nothing less.
+              Every dollar goes directly into our smart funding system, ensuring a balance between helping animals without a home, and helping less be born without one.
             </p>
             <div className="space-y-6">
               <h2 className="text-2xl font-semibold">Where donations are allocated</h2>
