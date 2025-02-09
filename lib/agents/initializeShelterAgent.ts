@@ -181,8 +181,8 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log('Saving wallet data...');
         const exportedWallet = await walletProvider.exportWallet();
 
-        fs.writeFileSync(WALLET_DATA_FILE, JSON.stringify(exportedWallet));
-        console.log('Wallet data saved successfully');
+        // fs.writeFileSync(WALLET_DATA_FILE, JSON.stringify(exportedWallet));
+        // console.log('Wallet data saved successfully');
 
         // Check if this shelter has tweeted before
         // const existingShelter = agentStore.getShelter(shelter._id);
