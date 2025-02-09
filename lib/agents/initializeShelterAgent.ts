@@ -238,7 +238,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log('Shelter added to agent store successfully');
 
         console.log('Registering agent with coordinator...');
-        const { registerAgent } = await import('../lib/agents/initializeCoordinatorAgent');
+        const { registerAgent } = await import('./initializeCoordinatorAgent');
         await registerAgent(shelter._id, agent);
         console.log('Agent registered with coordinator successfully');
 
