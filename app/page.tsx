@@ -28,12 +28,12 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="relative w-full h-[700px]">
+          <div className="relative w-full h-[1000px] -mt-32">
             <Image 
               src="/dog.png"
               alt="Happy dog with tongue out"
               fill
-              className="object-contain object-right scale-125"
+              className="object-contain object-right"
               priority
             />
           </div>

@@ -5,7 +5,7 @@ import { ChatAnthropic } from "@langchain/anthropic";
 import { MemorySaver } from "@langchain/langgraph";
 import * as dotenv from "dotenv";
 import * as fs from "node:fs";
-import { agentStore } from "../lib/store/agentStore";
+import { agentStore } from "../store/agentStore";
 import path from "node:path";
 import { cdpApiActionProvider } from "@coinbase/agentkit";
 dotenv.config();
@@ -111,7 +111,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log("CDP Wallet Provider initialized successfully");
 
         const walletAddress = await walletProvider.getAddress();
-        const WALLET_ADDRESS_FILE = `wallet_address_${shelter._id}.txt`;
+        const WALLET_ADDRESS_FILE = path.join(WALLET_INFO_DIR, `wallet_address_${shelter._id}.txt`);
         fs.writeFileSync(WALLET_ADDRESS_FILE, walletAddress);
         console.log("Wallet address saved successfully");
 
@@ -201,6 +201,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
 
         console.log('Saving wallet data...');
         const exportedWallet = await walletProvider.exportWallet();
+
         fs.writeFileSync(WALLET_DATA_FILE, JSON.stringify(exportedWallet));
         console.log('Wallet data saved successfully');
 

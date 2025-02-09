@@ -5,7 +5,7 @@ import { ANIMAL_WELFARE_CONFIG } from '@/contracts/animalWelfareContractConfig';
 import readData from '@/lib/data/readData';
 import type { ShelterFetched } from '@/types/shelter';
 import * as fs from 'node:fs';
-
+import path from 'node:path';
 // Current exchange rate PLN to ETH (this should be fetched from an API in production)
 const PLN_TO_ETH = 0.000125; // Example rate: 1 PLN = 0.000125 ETH
 
@@ -13,7 +13,8 @@ const CONTRACT_ADDRESS = '0x933bF9dbBe7ccff543Abb2C5878Fb879618182C8' as Address
 
 // Get shelter's CDP wallet address from their wallet data file
 async function getShelterWalletAddress(shelterId: string): Promise<Address | null> {
-  const walletAddressFile = `wallet_address_${shelterId}.txt`;
+  const WALLET_INFO_DIR = path.join(process.cwd(), 'walletInfo');
+  const walletAddressFile = path.join(WALLET_INFO_DIR, `wallet_address_${shelterId}.txt`);
   
   try {
     if (!fs.existsSync(walletAddressFile)) {

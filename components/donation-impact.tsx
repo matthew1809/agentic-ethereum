@@ -9,7 +9,7 @@ export default function DonationImpact() {
       <div className="max-w-7xl mx-auto">
         <div className="max-w-3xl relative">
           <h2 className="text-4xl font-bold text-white mb-4">
-            How we make every dollar count
+            How we make every Eth count
           </h2>
           <p className="text-lg text-gray-300 mb-8">
             AI ensures funding is allocated based on real shelter needs, preventing waste

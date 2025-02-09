@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
@@ -23,11 +23,11 @@ function ChatMessageBubble({ message, isAgent }: { message: Message; isAgent?: b
     >
       {isAgent && (
         <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center">
-          <span className="text-zinc-900">🐱</span>
+          <span role="img" aria-label="paw emoji" className="text-zinc-900">🐾</span>
         </div>
       )}
       <div
-        className={`rounded-lg p-3 max-w-[80%] ${
+        className={`rounded-lg p-4 max-w-[85%] ${
           isAgent ? 'bg-zinc-700' : 'bg-amber-500 text-zinc-900'
         }`}
       >
@@ -39,7 +39,7 @@ function ChatMessageBubble({ message, isAgent }: { message: Message; isAgent?: b
 
 function ChatMessages({ messages }: { messages: Message[] }) {
   return (
-    <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
+    <div className="flex flex-col w-full space-y-4">
       {messages.map((m) => (
         <ChatMessageBubble
           key={m.id}
@@ -67,26 +67,24 @@ function ChatInput(props: {
       }}
       className={cn("flex w-full flex-col", props.className)}
     >
-      <div className="border border-input bg-secondary rounded-lg flex flex-col gap-2 max-w-[768px] w-full mx-auto">
+      <div className="relative">
         <input
           value={props.value}
-          placeholder="Tell us about your ideal pet..."
+          placeholder="Message our AI onboarding agent"
           onChange={props.onChange}
-          className="border-none outline-none bg-transparent p-4 text-black"
+          className="w-full bg-[#1B1B1B] rounded-lg px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
         />
-
-        <div className="flex justify-end mr-2 mb-2">
-          <Button type="submit" className="self-end" disabled={props.loading}>
-            {props.loading ? (
-              <output className="flex justify-center">
-                <LoaderCircle className="animate-spin" />
-                <span className="sr-only">Loading...</span>
-              </output>
-            ) : (
-              <span>Send</span>
-            )}
-          </Button>
-        </div>
+        <Button 
+          type="submit" 
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg" 
+          disabled={props.loading}
+        >
+          {props.loading ? (
+            <LoaderCircle className="animate-spin" />
+          ) : (
+            'Send'
+          )}
+        </Button>
       </div>
     </form>
   );
@@ -96,12 +94,22 @@ export default function AdoptPet() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, []);
 
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
     setIsLoading(true);
+    setHasUserSentMessage(true);
 
     // Add user message
     const userMessage: Message = {
@@ -170,9 +178,9 @@ export default function AdoptPet() {
 
   return (
     <div className="min-h-screen bg-[#1B1B1B] text-white">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8">
         {/* Title Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h1 className="text-5xl lg:text-7xl font-bold mb-6">
             Find your <span className="text-amber-500">perfect</span> pet<br />
             companion.
@@ -184,12 +192,12 @@ export default function AdoptPet() {
         </div>
 
         {/* Main Content Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start max-w-7xl mx-auto">
           {/* Left Side - Dog Image */}
-          <div className="relative">
+          <div className="relative lg:sticky lg:top-4">
             <Image
               src="/dog-matching.png"
-              alt="Dog"
+              alt="Dog looking up expectantly"
               width={600}
               height={600}
               className="w-full h-auto"
@@ -198,27 +206,35 @@ export default function AdoptPet() {
           </div>
 
           {/* Right Side - Chat Interface */}
-          <div className="flex flex-col gap-6">
-         
-            {/* Chat Area */}
-            <div className="bg-zinc-800/50 rounded-xl p-6">
-              <div className="min-h-[300px] mb-6">
-                {messages.length === 0 ? (
-                  <div className="text-center text-gray-400 py-12">
-                    Start chatting to find your perfect pet match.
+          <div className="flex flex-col">
+            <div className="bg-[#1B1B1B] rounded-lg border border-zinc-800">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800">
+                <span role="img" aria-label="paw emoji" className="text-amber-500">🐾</span>
+                <span>Let&apos;s find your perfect pet</span>
+              </div>
+              <div 
+                ref={chatContainerRef}
+                className="min-h-[400px] max-h-[600px] overflow-y-auto p-4 space-y-4"
+              >
+                {!hasUserSentMessage ? (
+                  <div className="flex justify-end">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white px-6">
+                      Chat to get started
+                    </Button>
                   </div>
                 ) : (
                   <ChatMessages messages={messages} />
                 )}
               </div>
 
-              {/* Chat Input */}
-              <ChatInput
-                value={input}
-                onChange={handleInputChange}
-                onSubmit={handleSubmit}
-                loading={isLoading}
-              />
+              <div className="p-4 border-t border-zinc-800">
+                <ChatInput
+                  value={input}
+                  onChange={handleInputChange}
+                  onSubmit={handleSubmit}
+                  loading={isLoading}
+                />
+              </div>
             </div>
           </div>
         </div>
