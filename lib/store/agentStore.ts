@@ -1,7 +1,14 @@
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import path from 'node:path';
+import { Redis } from '@upstash/redis';
+import type { createReactAgent } from "@langchain/langgraph/prebuilt";
 
-const STORE_FILE = 'agent_store.json';
+if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  throw new Error('Missing required Upstash Redis environment variables');
+}
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN
+});
 
 interface ShelterMetadata {
   _id: string;
@@ -10,61 +17,60 @@ interface ShelterMetadata {
     location: { $share: string };
   };
   thread_id: string;
+  agent?: ReturnType<typeof createReactAgent>;
 }
 
 class AgentStore {
   private shelters: Map<string, ShelterMetadata>;
-  private storePath: string;
 
   constructor() {
     this.shelters = new Map();
-    this.storePath = path.join(process.cwd(), STORE_FILE);
-    this.loadFromDisk();
+    this.loadFromRedis();
   }
 
-  private loadFromDisk() {
-    if (existsSync(this.storePath)) {
-      try {
-        const data = JSON.parse(readFileSync(this.storePath, 'utf8'));
-        this.shelters = new Map(Object.entries(data));
-      } catch (error) {
-        console.error('Error loading agent store:', error);
+  private async loadFromRedis() {
+    try {
+      const data = await redis.get('agent_store');
+      if (data) {
+        this.shelters = new Map(Object.entries(data as Record<string, ShelterMetadata>));
       }
+    } catch (error) {
+      console.error('Error loading agent store from Redis:', error);
     }
   }
 
-  private saveToDisk() {
+  private async saveToRedis() {
     try {
       const data = Object.fromEntries(this.shelters);
-      writeFileSync(this.storePath, JSON.stringify(data, null, 2));
+      await redis.set('agent_store', data);
     } catch (error) {
-      console.error('Error saving agent store:', error);
+      console.error('Error saving agent store to Redis:', error);
     }
   }
 
-  addShelter(id: string, metadata: ShelterMetadata) {
+  async addShelter(id: string, metadata: ShelterMetadata) {
     this.shelters.set(id, metadata);
-    this.saveToDisk();
+    await this.saveToRedis();
   }
 
-  getShelter(id: string): ShelterMetadata | undefined {
-    this.loadFromDisk(); // Reload to get latest state
+  async getShelter(id: string): Promise<ShelterMetadata | undefined> {
+    await this.loadFromRedis(); // Reload to get latest state
     return this.shelters.get(id);
   }
 
-  getAllShelters(): Map<string, ShelterMetadata> {
-    this.loadFromDisk(); // Reload to get latest state
+  async getAllShelters(): Promise<Map<string, ShelterMetadata>> {
+    await this.loadFromRedis(); // Reload to get latest state
     return new Map(this.shelters);
   }
 
-  removeShelter(id: string) {
+  async removeShelter(id: string) {
     this.shelters.delete(id);
-    this.saveToDisk();
+    await this.saveToRedis();
   }
 
-  clear() {
+  async clear() {
     this.shelters.clear();
-    this.saveToDisk();
+    await this.saveToRedis();
   }
 }
 
