@@ -5,6 +5,7 @@ import { HumanMessage } from "@langchain/core/messages";
 import { SecretVaultWrapper } from 'nillion-sv-wrappers';
 const encoder = new TextEncoder();
 
+export const maxDuration = 60;
 
 export async function POST(
   req: Request
