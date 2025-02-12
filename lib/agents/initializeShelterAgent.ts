@@ -7,6 +7,7 @@ import * as dotenv from "dotenv";
 import * as fs from "node:fs";
 import { agentStore } from "../store/agentStore";
 import { cdpApiActionProvider } from "@coinbase/agentkit";
+import type { ShelterFetched } from '@/types/shelter';
 dotenv.config();
 
 // Helper to get the actual value regardless of $share or $allot
@@ -42,7 +43,7 @@ function validateEnvironment() {
  * @param shelter The shelter data from the database
  * @returns Agent executor and config
  */
-async function initializeShelterAgent(shelter: any): Promise<{
+async function initializeShelterAgent(shelter: ShelterFetched): Promise<{
     agent: ReturnType<typeof createReactAgent>;
     config: {
         configurable: {
@@ -185,7 +186,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         // console.log('Wallet data saved successfully');
 
         // Check if this shelter has tweeted before
-        // const existingShelter = agentStore.getShelter(shelter._id);
+        // const existingShelter = await agentStore.getShelter(shelter._id);
         // if (!existingShelter?.has_tweeted) {
         //     try {
         //         await agent.invoke({
@@ -196,7 +197,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         //         });
                 
         //         // Mark the shelter as having tweeted
-        //         agentStore.markShelterAsTweeted(shelter._id);
+        //         await agentStore.markShelterAsTweeted(shelter._id);
         //         console.log('Initial tweet sent successfully');
         //     } catch (error) {
         //         console.error('Failed to send initial tweet:', error);
@@ -205,14 +206,14 @@ async function initializeShelterAgent(shelter: any): Promise<{
         // }
 
         console.log('Adding shelter to agent store...');
-        agentStore.addShelter(shelter._id, {
+        await agentStore.addShelter(shelter._id, {
             _id: shelter._id,
             shelter_info: {
-                name: shelterName,
-                location: shelterLocation
+                name: { $share: shelterName },
+                location: { $share: shelterLocation }
             },
-            agent,
-            config: agentConfig
+            thread_id: `Shelter Agent - ${shelterName}`,
+            agent
         });
         console.log('Shelter added to agent store successfully');
 
@@ -224,7 +225,7 @@ async function initializeShelterAgent(shelter: any): Promise<{
         console.log('Agent initialization completed successfully!');
         return { agent, config: agentConfig };
     } catch (error) {
-        console.error("Failed to initialize agent:", error);
+        console.error("Failed to initialize agent:", error instanceof Error ? error.message : 'Unknown error');
         throw error;
     }
 }
