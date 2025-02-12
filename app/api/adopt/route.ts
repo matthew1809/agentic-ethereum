@@ -10,6 +10,8 @@ import {
 
 export const runtime = "nodejs";
 
+export const maxDuration = 60;
+
 const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
   if (message.role === "user") {
     return new HumanMessage(message.content);
